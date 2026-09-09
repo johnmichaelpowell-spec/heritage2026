@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Binder">
+<meta name="theme-color" content="#331316">
+<title>Heritage Binder — 2026 Topps Heritage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800&family=Archivo:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --vinyl:#4E1D22;
+    --vinyl-dk:#331316;
+    --stock:#EFE8D8;
+    --stock-dk:#DFD5BE;
+    --ink:#1A1714;
+    --gold:#E3A72C;
+    --owned:#2E7A57;
+    --muted:#8C8377;
+    --sleeve:rgba(255,255,255,.55);
+    --disp:'Big Shoulders Display','Haettenschweiler','Arial Narrow',sans-serif;
+    --body:'Archivo','Helvetica Neue',Arial,sans-serif;
+    --mono:'DM Mono',ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--vinyl-dk);
+    background-image:
+      radial-gradient(ellipse at 50% -10%, rgba(227,167,44,.10), transparent 60%),
+      repeating-linear-gradient(135deg, rgba(0,0,0,.16) 0 2px, transparent 2px 5px);
+    color:var(--stock);
+    font-family:var(--body);
+    font-size:15px;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;cursor:pointer}
+  button:focus-visible,select:focus-visible,input:focus-visible,.pocket:focus-visible{
+    outline:3px solid var(--gold);outline-offset:2px}
+
+  /* ---------- masthead ---------- */
+  .top{
+    display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap;
+    padding:calc(18px + env(safe-area-inset-top)) 22px 14px;border-bottom:3px solid var(--vinyl);
+    background:linear-gradient(180deg,rgba(78,29,34,.85),rgba(51,19,22,.4));
+  }
+  .brand h1{
+    font-family:var(--disp);font-weight:800;font-size:38px;line-height:.85;
+    letter-spacing:.02em;margin:0;color:var(--stock);text-transform:uppercase;
+  }
+  .brand h1 em{font-style:normal;color:var(--gold)}
+  .brand p{margin:5px 0 0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#C9B9A6}
+  .top .spacer{flex:1}
+  .tally{display:flex;gap:22px;align-items:flex-end}
+  .stat{text-align:right}
+  .stat b{display:block;font-family:var(--mono);font-size:24px;line-height:1;color:var(--stock)}
+  .stat b.on{color:var(--gold)}
+  .stat span{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#B9A897}
+
+  /* ---------- layout ---------- */
+  .wrap{display:flex;align-items:flex-start;gap:0;min-height:calc(100vh - 96px)}
+  .rail{
+    width:268px;flex:none;padding:18px 16px 40px;
+    background:rgba(0,0,0,.24);border-right:1px solid rgba(227,167,44,.18);
+    position:sticky;top:0;max-height:100vh;overflow-y:auto;
+  }
+  .stage{flex:1;padding:22px 20px 60px;min-width:0}
+
+  .fieldset{margin-bottom:20px}
+  .lbl{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);
+    margin:0 0 7px;font-weight:600}
+  select,.txt{
+    width:100%;padding:8px 10px;border-radius:3px;border:1px solid rgba(239,232,216,.25);
+    background:rgba(0,0,0,.3);color:var(--stock);font-family:var(--body);font-size:13.5px;
+  }
+  .seg{display:flex;gap:5px}
+  .seg button{
+    flex:1;padding:8px 4px;border-radius:3px;border:1px solid rgba(239,232,216,.25);
+    background:rgba(0,0,0,.3);color:#C9B9A6;font-size:12px;font-weight:600;
+  }
+  .seg button[aria-pressed=true]{background:var(--gold);border-color:var(--gold);color:#331316}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:#D9CEBE;margin:7px 0;cursor:pointer}
+  .chk input{accent-color:var(--gold);width:15px;height:15px}
+
+  .meter{height:7px;border-radius:4px;background:rgba(0,0,0,.4);overflow:hidden;margin:8px 0 5px}
+  .meter i{display:block;height:100%;background:var(--gold);transition:width .35s ease}
+  .meter-note{font-family:var(--mono);font-size:11.5px;color:#C9B9A6}
+
+  .act{
+    width:100%;padding:9px;margin-top:6px;border-radius:3px;
+    border:1px solid rgba(239,232,216,.3);background:transparent;color:var(--stock);
+    font-size:12.5px;font-weight:600;letter-spacing:.04em;
+  }
+  .act:hover{background:rgba(227,167,44,.14);border-color:var(--gold)}
+  .rail hr{border:0;border-top:1px solid rgba(239,232,216,.14);margin:18px 0}
+  .fine{font-size:11.5px;line-height:1.5;color:#9C8F80;margin:8px 0 0}
+
+  /* ---------- binder ---------- */
+  .nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .nav button{
+    padding:8px 13px;border-radius:3px;border:1px solid rgba(239,232,216,.3);
+    background:rgba(0,0,0,.25);color:var(--stock);font-size:13px;font-weight:600;
+  }
+  .nav button:hover:not(:disabled){background:rgba(227,167,44,.16);border-color:var(--gold)}
+  .nav button:disabled{opacity:.32;cursor:not-allowed}
+  .nav .where{font-family:var(--disp);font-weight:700;font-size:23px;letter-spacing:.05em;
+    text-transform:uppercase;min-width:190px;text-align:center}
+  .nav .where small{display:block;font-family:var(--body);font-size:11px;font-weight:500;
+    letter-spacing:.12em;color:#B9A897}
+
+  .binder{
+    display:flex;gap:0;justify-content:center;align-items:stretch;
+    background:var(--vinyl);border-radius:8px;padding:16px;
+    box-shadow:0 18px 40px rgba(0,0,0,.45), inset 0 0 0 2px rgba(0,0,0,.25);
+    max-width:1180px;margin:0 auto;
+  }
+  .page{
+    flex:1;min-width:0;background:var(--stock);
+    background-image:linear-gradient(180deg,rgba(255,255,255,.5),rgba(0,0,0,.035));
+    padding:14px 14px 24px;position:relative;
+  }
+  .page:first-child{border-radius:4px 0 0 4px}
+  .page:last-child{border-radius:0 4px 4px 0}
+  .page.blank{background:repeating-linear-gradient(45deg,#43181d 0 8px,#3c161b 8px 16px);box-shadow:none}
+  .page.front{display:flex;align-items:center;justify-content:center}
+  .plate{display:flex;flex-direction:column;align-items:center;text-align:center;
+    gap:9px;padding:26px 22px;max-width:82%}
+  .plate .pl-set{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#8C8377}
+  .plate .pl-name{font-family:var(--disp);font-weight:800;font-size:clamp(20px,3.2vw,34px);
+    line-height:.95;letter-spacing:.01em;text-transform:uppercase;color:#1A1714}
+  .plate .pl-rule{width:52px;height:3px;background:var(--gold);border-radius:2px}
+  .plate .pl-sub{font-family:var(--mono);font-size:12px;color:#6f665c;letter-spacing:.04em}
+  .rings{
+    flex:none;width:34px;background:linear-gradient(90deg,rgba(0,0,0,.4),rgba(0,0,0,.18),rgba(0,0,0,.4));
+    display:flex;flex-direction:column;justify-content:space-evenly;align-items:center;padding:22px 0;
+  }
+  .ring{width:15px;height:15px;border-radius:50%;border:3px solid #C6B49B;
+    background:radial-gradient(circle at 35% 30%,#fff,#8d8171);box-shadow:0 1px 3px rgba(0,0,0,.5)}
+  .page-no{
+    position:absolute;bottom:7px;font-family:var(--mono);font-size:11px;color:#9C8F80;letter-spacing:.08em}
+  .page:first-child .page-no{left:14px}
+  .page:last-child .page-no{right:14px}
+
+  .grid{display:grid;gap:8px}
+  .pocket{
+    position:relative;aspect-ratio:5/7;border-radius:4px;padding:0;border:0;
+    background:var(--sleeve);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.14), inset 0 1px 6px rgba(255,255,255,.7);
+    cursor:pointer;overflow:hidden;transition:transform .12s ease;
+    container-type:inline-size;
+  }
+  .pocket:hover{transform:translateY(-2px)}
+  .pocket.void{background:rgba(0,0,0,.05);box-shadow:inset 0 0 0 1px rgba(0,0,0,.07);cursor:default}
+  .pocket.void:hover{transform:none}
+
+  /* empty sleeve = the card you still need */
+  .ghost{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:3px;padding:6px;text-align:center;
+  }
+  .ghost .no{font-family:var(--mono);font-size:clamp(10px,15cqw,16px);color:#6f665c}
+  .ghost .nm{font-family:var(--body);font-size:clamp(7.5px,11cqw,12px);font-weight:600;line-height:1.15;color:#8C8377;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .ghost .tm{font-size:clamp(6px,8.5cqw,9.5px);letter-spacing:.06em;text-transform:uppercase;color:#A79C8D}
+
+  /* filled pocket = a 1977-style card */
+  .card{position:absolute;inset:0;background:#F7F3E8;display:flex;flex-direction:column;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+  .card .arc{height:26%;flex:none;display:block;width:100%}
+  .card .frame{
+    flex:1;margin:0 7% 0;border:2px solid var(--tc,#333);border-bottom:0;
+    background:var(--tc,#333);display:flex;align-items:center;justify-content:center;overflow:hidden;
+  }
+  .card .frame u{display:flex;flex-direction:column;align-items:center;gap:2px;
+    text-decoration:none;padding:2px;width:100%}
+  .card .frame em{font-family:var(--disp);font-weight:700;font-style:normal;
+    font-size:clamp(6px,12cqw,15px);line-height:1.02;letter-spacing:.02em;
+    color:rgba(255,255,255,.93);text-transform:uppercase;max-width:100%;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .frame span{
+    font-family:var(--disp);font-weight:800;font-size:clamp(14px,32cqw,34px);color:rgba(255,255,255,.9);
+    letter-spacing:.02em;line-height:1;
+  }
+  .card .band{
+    flex:none;padding:3px 5px 4px;display:flex;align-items:center;gap:4px;background:#F7F3E8;
+    border-top:2px solid var(--tc,#333);margin:0 7%;
+  }
+  .card .ball{
+    flex:none;width:clamp(12px,18cqw,20px);aspect-ratio:1;border-radius:50%;background:#fff;border:1.5px solid #1A1714;
+    font-family:var(--mono);font-size:clamp(5px,7cqw,8px);display:flex;align-items:center;justify-content:center;
+    color:#1A1714;line-height:1;
+  }
+  .card .who{min-width:0;text-align:left}
+  .card .who b{display:block;font-family:var(--disp);font-weight:700;font-size:clamp(8px,13cqw,14px);line-height:1;
+    color:#1A1714;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .who i{display:block;font-style:normal;font-size:clamp(5.5px,8cqw,9px);letter-spacing:.05em;color:#6f665c;
+    text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .flags{position:absolute;top:4px;right:4px;display:flex;gap:3px;z-index:2}
+  .flag{font-family:var(--mono);font-size:8px;padding:1px 3px;border-radius:2px;line-height:1.3;
+    background:#1A1714;color:var(--gold)}
+  .flag.rc{background:var(--owned);color:#fff}
+
+  /* ---------- detail bar ---------- */
+  .readout{
+    max-width:1180px;margin:14px auto 0;padding:11px 14px;border-radius:4px;
+    background:rgba(0,0,0,.28);border:1px solid rgba(227,167,44,.2);
+    display:flex;gap:16px;align-items:center;flex-wrap:wrap;min-height:44px;
+  }
+  .readout .k{font-family:var(--mono);font-size:15px;color:var(--gold)}
+  .readout .v{font-size:13.5px;color:#D9CEBE}
+  .readout .v b{color:var(--stock)}
+  .readout .hint{font-size:12px;color:#9C8F80;margin-left:auto}
+
+  .results{margin-top:8px;max-height:190px;overflow-y:auto}
+  .results button{
+    display:block;width:100%;text-align:left;padding:6px 8px;margin-bottom:3px;border-radius:3px;
+    border:1px solid transparent;background:rgba(0,0,0,.25);color:#D9CEBE;font-size:12.5px;
+  }
+  .results button:hover{border-color:var(--gold);background:rgba(227,167,44,.14)}
+  .results .rn{font-family:var(--mono);color:var(--gold);margin-right:6px}
+  .results .rs{display:block;font-size:10.5px;color:#9C8F80;letter-spacing:.04em}
+
+  @media (max-width:900px){
+    /* cards first, controls underneath — you came here to look at the binder */
+    .wrap{flex-direction:column}
+    .stage{order:1}
+    .rail{order:2;width:100%;position:static;max-height:none;border-right:0;
+      border-top:1px solid rgba(227,167,44,.18);padding-top:22px}
+    .rail::before{content:"Binder options";display:block;font-family:var(--disp);
+      font-weight:700;font-size:19px;letter-spacing:.04em;text-transform:uppercase;
+      color:var(--gold);margin-bottom:14px}
+    .nav{position:sticky;top:0;z-index:5;padding:8px 0;
+      background:linear-gradient(180deg,rgba(51,19,22,.97) 70%,rgba(51,19,22,0));
+      backdrop-filter:blur(3px)}
+    .nav .where{min-width:0;flex:1;font-size:19px}
+    .nav button{padding:9px 11px}
+    .readout{margin-bottom:8px}
+    .stage{width:100%;padding:16px 12px 50px}
+    .binder{padding:9px;border-radius:5px}
+    .page.right,.rings{display:none}
+    .card .frame u{display:flex;flex-direction:column;align-items:center;gap:2px;
+    text-decoration:none;padding:2px;width:100%}
+  .card .frame em{font-family:var(--disp);font-weight:700;font-style:normal;
+    font-size:clamp(6px,12cqw,15px);line-height:1.02;letter-spacing:.02em;
+    color:rgba(255,255,255,.93);text-transform:uppercase;max-width:100%;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .frame span{font-size:22px}
+    .brand h1{font-size:29px}
+    .top{padding:14px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  /* ---------- print ---------- */
+  #printout{display:none}
+  @media print{
+    @page{margin:10mm}
+    html,body{background:#fff!important;color:#000!important}
+    body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .top,.wrap{display:none!important}
+    #printout{display:block}
+    .sheet{break-after:page;page-break-after:always}
+    .sheet:last-child{break-after:auto;page-break-after:auto}
+    .sheet-hd{display:flex;justify-content:space-between;align-items:baseline;
+      border-bottom:1.5pt solid #000;padding-bottom:2mm;margin-bottom:4mm}
+    .sheet-hd b{font-family:var(--disp);font-weight:800;font-size:15pt;
+      text-transform:uppercase;letter-spacing:.02em;color:#000}
+    .sheet-hd span{font-family:var(--mono);font-size:8.5pt;color:#333}
+    .p-grid{display:grid;justify-content:center;margin:0 auto}
+    .p-pocket{border:1pt solid #444;border-radius:1.5mm;padding:2mm;
+      display:flex;flex-direction:column;justify-content:center;align-items:center;
+      text-align:center;gap:1mm;overflow:hidden}
+    .p-pocket.blank{border-style:dotted;border-color:#bbb}
+    .p-pocket.got{background:#EDEDED}
+    .p-pocket .pn{font-family:var(--mono);font-size:12pt;font-weight:500;color:#000}
+    .p-pocket .pp{font-family:var(--body);font-weight:700;font-size:8.5pt;line-height:1.15;color:#000;
+      max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+    .p-pocket .pt{font-family:var(--body);font-size:6.5pt;letter-spacing:.05em;
+      text-transform:uppercase;color:#555}
+    .p-pocket .pf{font-family:var(--mono);font-size:7pt;font-weight:500;color:#000;
+      border:.7pt solid #000;border-radius:1mm;padding:.3mm 1.3mm;margin-top:1mm;letter-spacing:.04em}
+    .p-pocket .box{width:4mm;height:4mm;border:1pt solid #000;border-radius:.7mm;margin-top:1mm}
+    .p-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5mm 6mm}
+    .p-row{display:flex;align-items:center;gap:2mm;border-bottom:.4pt solid #ccc;
+      padding:1.1mm 0;break-inside:avoid;page-break-inside:avoid;
+      min-width:0;overflow:hidden}
+    .p-row .box{width:3.4mm;height:3.4mm;border:.9pt solid #000;border-radius:.6mm;flex:none}
+    .p-row .pn{font-family:var(--mono);font-size:8pt;width:13mm;flex:none;color:#000}
+    .p-row .pp{font-family:var(--body);font-size:8.5pt;font-weight:600;color:#000;
+      flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .p-row .pt{font-family:var(--body);font-size:7pt;color:#555;margin-left:auto;
+      flex:0 1 auto;min-width:0;max-width:30mm;white-space:nowrap;overflow:hidden;
+      text-overflow:ellipsis;text-transform:uppercase;letter-spacing:.04em}
+    .p-row .pf{font-family:var(--mono);font-size:6.5pt;border:.7pt solid #000;
+      border-radius:1mm;padding:.2mm 1.1mm;flex:none;letter-spacing:.04em}
+    .p-foot{margin-top:5mm;border-top:.5pt solid #999;padding-top:2mm;
+      font-family:var(--body);font-size:7pt;color:#666}
+  }
+</style>
+
+<div class="top">
+  <div class="brand">
+    <h1>Heritage <em>Binder</em></h1>
+    <p>2026 Topps Heritage &middot; 1977 design &middot; checklist subject to change</p>
+  </div>
+  <div class="spacer"></div>
+  <div class="tally">
+    <div class="stat"><b class="on" id="tHave">0</b><span>In binder</span></div>
+    <div class="stat"><b id="tNeed">0</b><span>Still needed</span></div>
+    <div class="stat"><b id="tPages">0</b><span>Pages</span></div>
+  </div>
+</div>
+
+<div id="printout"></div>
+
+<div class="wrap">
+  <aside class="rail">
+    <div class="fieldset">
+      <p class="lbl">Binder</p>
+      <select id="binderSel"></select>
+      <div class="meter"><i id="meterBar" style="width:0%"></i></div>
+      <p class="meter-note" id="meterTxt">0 of 0</p>
+    </div>
+
+    <div class="fieldset">
+      <p class="lbl">Pocket page</p>
+      <div class="seg" id="layoutSeg">
+        <button data-c="2" data-r="2">4</button>
+        <button data-c="3" data-r="3" aria-pressed="true">9</button>
+        <button data-c="4" data-r="3">12</button>
+      </div>
+    </div>
+
+    <div class="fieldset">
+      <p class="lbl">Order</p>
+      <select id="sortSel">
+        <option value="num">Card number, 1 to 400</option>
+        <option value="subset">Subset, then number</option>
+        <option value="team">Team, then number</option>
+        <option value="player">Player name</option>
+      </select>
+    </div>
+
+    <div class="fieldset">
+      <p class="lbl">Show only</p>
+      <label class="chk"><input type="checkbox" id="fSP"> Short prints</label>
+      <label class="chk"><input type="checkbox" id="fRC"> Rookies</label>
+      <label class="chk"><input type="checkbox" id="fNeed"> Cards I still need</label>
+    </div>
+
+    <div class="fieldset">
+      <p class="lbl">Find a card</p>
+      <input class="txt" id="q" placeholder="Ohtani, 290, Dodgers…" autocomplete="off">
+      <div class="results" id="results"></div>
+    </div>
+
+    <hr>
+    <div class="fieldset">
+      <p class="lbl">Print</p>
+      <div class="seg" id="printSeg">
+        <button data-m="pages" aria-pressed="true">Binder pages</button>
+        <button data-m="list">Want list</button>
+      </div>
+      <button class="act" id="btnPrint">Print to PDF</button>
+      <p class="fine" id="printNote"></p>
+    </div>
+
+    <button class="act" id="btnNext">Jump to next gap</button>
+    <button class="act" id="btnSave">Save my binder to a file</button>
+    <button class="act" id="btnLoad">Load a saved binder</button>
+    <input type="file" id="file" accept=".json,application/json,text/plain" hidden>
+    <p class="fine" id="persistNote"></p>
+  </aside>
+
+  <main class="stage">
+    <div class="nav">
+      <button id="first" title="First page">&#8676;</button>
+      <button id="prev">&larr; Back</button>
+      <div class="where"><span id="whereMain">Page 1</span><small id="whereSub"></small></div>
+      <button id="next">Forward &rarr;</button>
+      <button id="last" title="Last page">&#8677;</button>
+    </div>
+
+    <div class="binder" id="binder"></div>
+
+    <div class="readout" id="readout">
+      <span class="v">Click a pocket to put that card in the binder. Click it again to take it out.</span>
+      <span class="hint">Empty sleeves show what belongs there.</span>
+    </div>
+  </main>
+</div>
+
+<script>
+const CARDS = [["BASE","LEAGUE LEADERS","1","Aaron Judge","New York Yankees",0,0,""],["BASE","LEAGUE LEADERS","1","Trea Turner","Philadelphia Phillies",0,0,""],["BASE","LEAGUE LEADERS","2","Kyle Schwarber","Philadelphia Phillies",0,0,""],["BASE","LEAGUE LEADERS","2","Cal Raleigh","Seattle Mariners",0,0,""],["BASE","LEAGUE LEADERS","3","Kyle Schwarber","Philadelphia Phillies",0,0,""],["BASE","LEAGUE LEADERS","3","Cal Raleigh","Seattle Mariners",0,0,""],["BASE","LEAGUE LEADERS","4","Oneil Cruz","Pittsburgh Pirates",0,0,""],["BASE","LEAGUE LEADERS","4","José Caballero","New York Yankees",0,0,""],["BASE","LEAGUE LEADERS","5","Freddy Peralta","Milwaukee Brewers",0,0,""],["BASE","LEAGUE LEADERS","5","Max Fried","New York Yankees",0,0,""],["BASE","LEAGUE LEADERS","6","Logan Webb","San Francisco Giants",0,0,""],["BASE","LEAGUE LEADERS","6","Garrett Crochet","Boston Red Sox",0,0,""],["BASE","LEAGUE LEADERS","7","Paul Skenes","Pittsburgh Pirates",0,0,""],["BASE","LEAGUE LEADERS","7","Tarik Skubal","Detroit Tigers",0,0,""],["BASE","LEAGUE LEADERS","8","Robert Suarez","San Diego Padres",0,0,""],["BASE","LEAGUE LEADERS","8","Carlos Estevéz","Kansas City Royals",0,0,""],["BASE","RECORD BREAKERS","231","Cal Raleigh","Seattle Mariners",0,0,""],["BASE","RECORD BREAKERS","232","Pete Alonso","New York Mets",0,0,""],["BASE","RECORD BREAKERS","233","Elly De La Cruz","Cincinnati Reds",0,0,""],["BASE","RECORD BREAKERS","234","Riley Greene","Detroit Tigers",0,0,""],["BASE","AL CHAMPIONS","276","","Toronto Blue Jays",0,0,""],["BASE","NL CHAMPIONS","277","","Los Angeles Dodgers",0,0,""],["BASE","WORLD SERIES HIGHLIGHTS","311","","Los Angeles Dodgers",0,1,""],["BASE","WORLD SERIES HIGHLIGHTS","312","","Toronto Blue Jays",0,1,""],["BASE","WORLD SERIES HIGHLIGHTS","313","","Los Angeles Dodgers",0,1,""],["BASE","TURN BACK THE CLOCK","333","Miguel Cabrera","Detroit Tigers",0,1,""],["BASE","TURN BACK THE CLOCK","334","Carlos Beltrán","New York Yankees",0,1,""],["BASE","TURN BACK THE CLOCK","335","Derek Jeter","New York Yankees",0,1,""],["BASE","TURN BACK THE CLOCK","336","Mike Piazza","San Diego Padres",0,1,""],["BASE","TURN BACK THE CLOCK","337","Ichiro","Seattle Mariners",0,1,""],["BASE","QUAD ROOKIES","372","Philip Abner","Arizona Diamondbacks",1,1,""],["BASE","QUAD ROOKIES","372","Eduarniel Núñez","Athletics",1,1,""],["BASE","QUAD ROOKIES","372","Didier Fuentes","Atlanta Braves",1,1,""],["BASE","QUAD ROOKIES","372","Jonathan Pintaro","New York Mets",1,1,""],["BASE","QUAD ROOKIES","373","Nathan Church","St. Louis Cardinals",1,1,""],["BASE","QUAD ROOKIES","373","Troy Johnston","Miami Marlins",1,1,""],["BASE","QUAD ROOKIES","373","Jacob Melton","Houston Astros",1,1,""],["BASE","QUAD ROOKIES","373","Carlos Cortes","Athletics",1,1,""],["BASE","QUAD ROOKIES","374","Cam Devanney","Pittsburgh Pirates",1,1,""],["BASE","QUAD ROOKIES","374","Chad Stevens","Angels",1,1,""],["BASE","QUAD ROOKIES","374","Brice Matthews","Houston Astros",1,1,""],["BASE","QUAD ROOKIES","374","Ryan Ritter","Colorado Rockies",1,1,""],["BASE","QUAD ROOKIES","375","Zachary Maxwell","Cincinnati Reds",1,1,""],["BASE","QUAD ROOKIES","375","Dylan Smith","Detroit Tigers",1,1,""],["BASE","QUAD ROOKIES","375","Paul Gervase","Los Angeles Dodgers",1,1,""],["BASE","QUAD ROOKIES","375","Jack Perkins","Athletics",1,1,""],["BASE","QUAD ROOKIES","376","Will Banfield","Cincinnati Reds",1,1,""],["BASE","QUAD ROOKIES","376","C.J. Stubbs","Washington Nationals",1,1,""],["BASE","QUAD ROOKIES","376","Jimmy Crooks","St. Louis Cardinals",1,1,""],["BASE","QUAD ROOKIES","376","Rafael Flores","Pittsburgh Pirates",1,1,""],["BASE","QUAD ROOKIES","377","Cody Freeman","Texas Rangers",1,1,""],["BASE","QUAD ROOKIES","377","Otto Kemp","Philadelphia Phillies",1,1,""],["BASE","QUAD ROOKIES","377","Jeremiah Jackson","Baltimore Orioles",1,1,""],["BASE","QUAD ROOKIES","377","Bob Seymour","Tampa Bay Rays",1,1,""],["BASE","QUAD ROOKIES","378","Andry Lara","Washington Nationals",1,1,""],["BASE","QUAD ROOKIES","378","Wikelman González","Chicago White Sox",1,1,""],["BASE","QUAD ROOKIES","378","Juan Burgos","Arizona Diamondbacks",1,1,""],["BASE","QUAD ROOKIES","378","Jacob Palisch","Chicago White Sox",1,1,""],["BASE","QUAD ROOKIES","379","George Valera","Cleveland Guardians",1,1,""],["BASE","QUAD ROOKIES","379","Will Robertson","Pittsburgh Pirates",1,1,""],["BASE","QUAD ROOKIES","379","Colby Thomas","Athletics",1,1,""],["BASE","QUAD ROOKIES","379","Tristin English","Arizona Diamondbacks",1,1,""],["BASE","QUAD ROOKIES","387","Dugan Darnell","Colorado Rockies",1,1,""],["BASE","QUAD ROOKIES","387","Nick Raquet","St. Louis Cardinals",1,1,""],["BASE","QUAD ROOKIES","387","Troy Melton","Detroit Tigers",1,1,""],["BASE","QUAD ROOKIES","387","Jack Little","Los Angeles Dodgers",1,1,""],["BASE","QUAD ROOKIES","388","Justin Dean","Los Angeles Dodgers",1,1,""],["BASE","QUAD ROOKIES","388","Tristan Peters","Tampa Bay Rays",1,1,""],["BASE","QUAD ROOKIES","388","Kenedy Corona","Houston Astros",1,1,""],["BASE","QUAD ROOKIES","388","Drew Gilbert","San Francisco Giants",1,1,""],["BASE","QUAD ROOKIES","389","Alan Rangel","Philadelphia Phillies",1,1,""],["BASE","QUAD ROOKIES","389","Elvis Alvarado","Athletics",1,1,""],["BASE","QUAD ROOKIES","389","Carson Seymour","San Francisco Giants",1,1,""],["BASE","QUAD ROOKIES","389","Joe Rock","Tampa Bay Rays",1,1,""],["BASE","QUAD ROOKIES","390","Denzer Guzman","Angels",1,1,""],["BASE","QUAD ROOKIES","390","Maximo Acosta","Miami Marlins",1,1,""],["BASE","QUAD ROOKIES","390","Alex Freeland","Los Angeles Dodgers",1,1,""],["BASE","QUAD ROOKIES","390","Colson Montgomery","Chicago White Sox",1,1,""],["BASE","QUAD ROOKIES","391","Taylor Rashi","Arizona Diamondbacks",1,1,""],["BASE","QUAD ROOKIES","391","Shinnosuke Ogasawara","Washington Nationals",1,1,""],["BASE","QUAD ROOKIES","391","Luinder Avila","Kansas City Royals",1,1,""],["BASE","QUAD ROOKIES","391","PJ Poulin","Washington Nationals",1,1,""],["BASE","QUAD ROOKIES","392","Zach Cole","Houston Astros",1,1,""],["BASE","QUAD ROOKIES","392","Jakob Marsee","Miami Marlins",1,1,""],["BASE","QUAD ROOKIES","392","Yanquiel Fernández","Colorado Rockies",1,1,""],["BASE","QUAD ROOKIES","392","Petey Halpin","Cleveland Guardians",1,1,""],["BASE","QUAD ROOKIES","393","Mitch Farris","Angels",1,1,""],["BASE","QUAD ROOKIES","393","Andrew Alvarez","Washington Nationals",1,1,""],["BASE","QUAD ROOKIES","393","Joel Peguero","San Francisco Giants",1,1,""],["BASE","QUAD ROOKIES","393","Kyle Backhus","Arizona Diamondbacks",1,1,""],["BASE","QUAD ROOKIES","394","Jack Winkler","Miami Marlins",1,1,""],["BASE","QUAD ROOKIES","394","Warming Bernabel","Colorado Rockies",1,1,""],["BASE","QUAD ROOKIES","394","Kyle Karros","Colorado Rockies",1,1,""],["BASE","QUAD ROOKIES","394","César Prieto","St. Louis Cardinals",1,1,""],["BASE","BASE CARDS","9","Josh Hader","Houston Astros",0,0,""],["BASE","BASE CARDS","10","Aaron Judge","New York Yankees",0,0,""],["BASE","BASE CARDS","11","Jose Altuve","Houston Astros",0,0,""],["BASE","BASE CARDS","12","Mookie Betts","Los Angeles Dodgers",0,0,""],["BASE","BASE CARDS","13","Agustín Ramírez","Miami Marlins",0,0,""],["BASE","BASE CARDS","14","Jhoan Duran","Philadelphia Phillies",0,1,""],["BASE","BASE CARDS","15","Jarren Duran","Boston Red Sox",0,0,""],["BASE","BASE CARDS","16","Kyle Bradish","Baltimore Orioles",0,0,""],["BASE","BASE CARDS","17","Jacob Wilson","Athletics",0,0,""],["BASE","BASE CARDS","18","Eury Pérez","Miami Marlins",0,0,""],["BASE","BASE CARDS","19","Brett Baty","New York Mets",0,0,""],["BASE","BASE CARDS","20","Jonathan Aranda","Tampa Bay Rays",0,1,""],["BASE","BASE CARDS","21","Ernie Clement","Toronto Blue Jays",0,1,""],["BASE","BASE CARDS","22","Kris Bryant","Colorado Rockies",0,0,""],["BASE","BASE CARDS","23","Garrett Crochet","Boston Red Sox",0,0,""],["BASE","BASE CARDS","24","Luis Castillo","Seattle Mariners",0,1,""],["BASE","BASE CARDS","25","Yordan Alvarez","Houston Astros",0,0,""],["BASE","BASE CARDS","26","Jaden Hill","Colorado Rockies",0,1,""],["BASE","BASE CARDS","27","Casey Schmitt","San Francisco Giants",0,0,""],["BASE","BASE CARDS","28","Nico Hoerner","Chicago Cubs",0,0,""],["BASE","BASE CARDS","29","Eugenio Suárez","Seattle Mariners",0,0,""],["BASE","BASE CARDS","30","Connor Norby","Miami Marlins",0,1,""],["BASE","BASE CARDS","31","Andrew Abbott","Cincinnati Reds",0,0,""],["BASE","BASE CARDS","32","Andre Granillo","St. Louis Cardinals",1,0,""],["BASE","BASE CARDS","33","Paul Skenes","Pittsburgh Pirates",0,0,""],["BASE","BASE CARDS","34","Ryan Pepiot","Tampa Bay Rays",0,0,""],["BASE","BASE CARDS","35","Yoán Moncada","Angels",0,0,""],["BASE","BASE CARDS","36","Edwin Díaz","Los Angeles Dodgers",0,0,""],["BASE","BASE CARDS","37","Jorge Soler","Angels",0,0,""],["BASE","BASE CARDS","38","Taj Bradley","Minnesota Twins",0,0,""],["BASE","BASE CARDS","39","Roki Sasaki","Los Angeles Dodgers",0,0,""],["BASE","BASE CARDS","40","Nathan Eovaldi","Texas Rangers",0,0,""],["BASE","BASE CARDS","41","Spencer Strider","Atlanta Braves",0,0,""],["BASE","BASE CARDS","42","Jo Adell","Angels",0,0,""],["BASE","BASE CARDS","43","Luis García Jr.","Washington Nationals",0,0,""],["BASE","BASE CARDS","44","Austin Martin","Minnesota Twins",0,0,""],["BASE","BASE CARDS","45","Michael A. Taylor","Chicago White Sox",0,0,""],["BASE","BASE CARDS","46","Vladimir Guerrero Jr.","Toronto Blue Jays",0,0,""],["BASE","BASE CARDS","47","Yandy Díaz","Tampa Bay Rays",0,0,""],["BASE","BASE CARDS","48","Dylan Beavers","Baltimore Orioles",1,0,""],["BASE","BASE CARDS","49","Coby Mayo","Baltimore Orioles",0,0,""],["BASE","BASE CARDS","50","Robert Hassell III","Washington Nationals",0,0,""],["BASE","BASE CARDS","51","Jurickson Profar","Atlanta Braves",0,0,""],["BASE","BASE CARDS","52","José Ramírez","Cleveland Guardians",0,0,""],["BASE","BASE CARDS","53","Hunter Greene","Cincinnati Reds",0,0,""],["BASE","BASE CARDS","54","Jeff McNeil","New York Mets",0,0,""],["BASE","BASE CARDS","55","Ronald Acuña Jr.","Atlanta Braves",0,0,""],["BASE","BASE CARDS","56","José Berríos","Toronto Blue Jays",0,1,""],["BASE","BASE CARDS","57","Patrick Bailey","San Francisco Giants",0,0,""],["BASE","BASE CARDS","58","Chandler Simpson","Tampa Bay Rays",0,0,""],["BASE","BASE CARDS","59","Harry Ford","Seattle Mariners",1,0,""],["BASE","BASE CARDS","60","Brooks Lee","Minnesota Twins",0,0,""],["BASE","BASE CARDS","61","Miguel Vargas","Chicago White Sox",0,1,""],["BASE","BASE CARDS","62","Rafael Devers","San Francisco Giants",0,0,""],["BASE","BASE CARDS","63","Mike Yastrzemski","Kansas City Royals",0,0,""],["BASE","BASE CARDS","64","Mitch Keller","Pittsburgh Pirates",0,1,""],["BASE","BASE CARDS","65","Mason Miller","San Diego Padres",0,0,""],["BASE","BASE CARDS","66","Darell Hernaiz","Athletics",0,1,""],["BASE","BASE CARDS","67","Luis Morales","Athletics",1,0,""],["BASE","BASE CARDS","68","Cade Cavalli","Washington Nationals",0,0,""],["BASE","BASE CARDS","69","Cam Smith","Houston Astros",0,0,""],["BASE","BASE CARDS","70","Elly De La Cruz","Cincinnati Reds",1,0,""],["BASE","BASE CARDS","71","Reese Olson","Detroit Tigers",0,1,""],["BASE","BASE CARDS","72","Bryce Harper","Philadelphia Phillies",0,0,""],["BASE","BASE CARDS","73","Dillon Dingler","Detroit Tigers",0,0,""],["BASE","BASE CARDS","74","Tanner Bibee","Cleveland Guardians",1,0,""],["BASE","BASE CARDS","75","Dane Myers","Miami Marlins",0,0,""],["BASE","BASE CARDS","76","Sandy Alcantara","Miami Marlins",0,0,""],["BASE","BASE CARDS","77","Mark Vientos","New York Mets",0,0,""],["BASE","BASE CARDS","78","Noah Cameron","Kansas City Royals",0,0,""],["BASE","BASE CARDS","79","Carson Whisenhunt","San Francisco Giants",1,0,""],["BASE","BASE CARDS","80","Austin Hays","Cincinnati Reds",0,1,""],["BASE","BASE CARDS","81","Alec Bohm","Philadelphia Phillies",0,0,""],["BASE","BASE CARDS","82","Logan Webb","San Francisco Giants",0,0,""],["BASE","BASE CARDS","83","Bradley Blalock","Colorado Rockies",0,0,""],["BASE","BASE CARDS","84","Maikel Garcia","Kansas City Royals",0,1,""],["BASE","BASE CARDS","85","Royce Lewis","Minnesota Twins",0,0,""],["BASE","BASE CARDS","86","Roman Anthony","Boston Red Sox",1,0,""],["BASE","BASE CARDS","87","Slade Cecconi","Cleveland Guardians",0,0,""],["BASE","BASE CARDS","88","Owen Caissie","Chicago Cubs",1,0,""],["BASE","BASE CARDS","89","Ramón Laureano","San Diego Padres",0,0,""],["BASE","BASE CARDS","90","Mike Tauchman","Chicago White Sox",0,0,""],["BASE","BASE CARDS","91","Chase Dollander","Colorado Rockies",0,0,""],["BASE","BASE CARDS","92","Kyle Freeland","Colorado Rockies",0,0,""],["BASE","BASE CARDS","93","Teoscar Hernández","Los Angeles Dodgers",0,1,""],["BASE","BASE CARDS","94","Lawrence Butler","Athletics",0,0,""],["BASE","BASE CARDS","95","Brendan Donovan","St. Louis Cardinals",0,0,""],["BASE","BASE CARDS","96","Mike Burrows","Pittsburgh Pirates",0,1,""],["BASE","BASE CARDS","97","Dansby Swanson","Chicago Cubs",0,1,""],["BASE","BASE CARDS","98","Jacob deGrom","Texas Rangers",0,0,""],["BASE","BASE CARDS","99","Bryan Woo","Seattle Mariners",0,0,""],["BASE","BASE CARDS","100","Noelvi Marte","Cincinnati Reds",0,0,""],["BASE","BASE CARDS","101","Tyler Soderstrom","Athletics",0,1,""],["BASE","BASE CARDS","102","Isaac Collins","Milwaukee Brewers",0,0,""],["BASE","BASE CARDS","103","Brent Rooker","Athletics",0,0,""],["BASE","BASE CARDS","104","Jasson Domínguez","New York Yankees",0,0,""],["BASE","BASE CARDS","105","Max Muncy","Athletics",0,0,""],["BASE","BASE CARDS","106","Spencer Torkelson","Detroit Tigers",0,1,""],["BASE","BASE CARDS","107","Javier Báez","Detroit Tigers",0,0,""],["BASE","BASE CARDS","108","George Springer","Toronto Blue Jays",0,0,""],["BASE","BASE CARDS","109","Caleb Durbin","Milwaukee Brewers",0,1,""],["BASE","BASE CARDS","110","Cristopher Sánchez","Philadelphia Phillies",0,0,""],["BASE","BASE CARDS","111","Robbie Ray","San Francisco Giants",0,1,""],["BASE","BASE CARDS","112","Jhostynxon Garcia","Boston Red Sox",1,0,""],["BASE","BASE CARDS","113","Cole Ragans","Kansas City Royals",0,0,""],["BASE","BASE CARDS","114","Matt Chapman","San Francisco Giants",0,0,""],["BASE","BASE CARDS","115","Jack Dreyer","Los Angeles Dodgers",0,1,""],["BASE","BASE CARDS","116","Luke Keaschall","Minnesota Twins",0,0,""],["BASE","BASE CARDS","117","Nolan Schanuel","Angels",0,0,""],["BASE","BASE CARDS","118","Brandon Sproat","New York Mets",1,0,""],["BASE","BASE CARDS","119","Brandon Nimmo","Texas Rangers",0,0,""],["BASE","BASE CARDS","120","Yu Darvish","San Diego Padres",0,0,""],["BASE","BASE CARDS","121","Caden Dana","Angels",0,1,""],["BASE","BASE CARDS","122","Bo Bichette","Toronto Blue Jays",0,1,""],["BASE","BASE CARDS","123","Luis Gil","New York Yankees",0,0,""],["BASE","BASE CARDS","124","Daylen Lile","Washington Nationals",0,0,""],["BASE","BASE CARDS","125","Ha-Seong Kim","Atlanta Braves",0,0,""],["BASE","BASE CARDS","126","Brandon Pfaadt","Arizona Diamondbacks",0,0,""],["BASE","BASE CARDS","127","Gavin Sheets","San Diego Padres",0,1,""],["BASE","BASE CARDS","128","Anthony Seigler","Milwaukee Brewers",1,0,""],["BASE","BASE CARDS","129","Josh Naylor","Seattle Mariners",0,0,""],["BASE","BASE CARDS","130","Max Fried","New York Yankees",0,0,""],["BASE","BASE CARDS","131","Ryan Mountcastle","Baltimore Orioles",0,0,""],["BASE","BASE CARDS","132","Luisangel Acuña","New York Mets",0,0,""],["BASE","BASE CARDS","133","Kyle Manzardo","Cleveland Guardians",0,0,""],["BASE","BASE CARDS","134","Braxton Ashcraft","Pittsburgh Pirates",0,0,""],["BASE","BASE CARDS","135","Jorge Polanco","Seattle Mariners",0,1,""],["BASE","BASE CARDS","136","Jac Caglianone","Kansas City Royals",1,0,""],["BASE","BASE CARDS","137","Jonah Tong","New York Mets",1,0,""],["BASE","BASE CARDS","138","Tyler Stephenson","Cincinnati Reds",0,1,""],["BASE","BASE CARDS","139","Steven Kwan","Cleveland Guardians",0,0,""],["BASE","BASE CARDS","140","Victor Robles","Seattle Mariners",0,0,""],["BASE","BASE CARDS","141","Jared Jones","Pittsburgh Pirates",0,0,""],["BASE","BASE CARDS","142","Cole Young","Seattle Mariners",1,0,""],["BASE","BASE CARDS","143","Manny Machado","San Diego Padres",0,0,""],["BASE","BASE CARDS","144","Jacob Misiorowski","Milwaukee Brewers",1,0,""],["BASE","BASE CARDS","145","Hurston Waldrep","Atlanta Braves",0,1,""],["BASE","BASE CARDS","146","Francisco Lindor","New York Mets",0,0,""],["BASE","BASE CARDS","147","Jordan Beck","Colorado Rockies",0,1,""],["BASE","BASE CARDS","148","Bradgley Rodríguez","San Diego Padres",1,0,""],["BASE","BASE CARDS","149","Luis Rengifo","Angels",0,0,""],["BASE","BASE CARDS","150","Nolan McLean","New York Mets",1,0,""],["BASE","BASE CARDS","151","Ke'Bryan Hayes","Cincinnati Reds",0,0,""],["BASE","BASE CARDS","152","Riley Greene","Detroit Tigers",0,0,""],["BASE","BASE CARDS","153","Brady House","Washington Nationals",1,0,""],["BASE","BASE CARDS","154","Carlos Correa","Houston Astros",0,0,""],["BASE","BASE CARDS","155","Cole Wilcox","Seattle Mariners",1,0,""],["BASE","BASE CARDS","156","Willson Contreras","St. Louis Cardinals",0,0,""],["BASE","BASE CARDS","157","Kevin Alcántara","Chicago Cubs",0,0,""],["BASE","BASE CARDS","158","Max Muncy","Los Angeles Dodgers",0,1,""],["BASE","BASE CARDS","159","Kyle Schwarber","Philadelphia Phillies",0,0,""],["BASE","BASE CARDS","160","Bobby Witt Jr.","Kansas City Royals",0,0,""],["BASE","BASE CARDS","161","Carson Williams","Tampa Bay Rays",1,0,""],["BASE","BASE CARDS","162","Sonny Gray","Boston Red Sox",0,1,""],["BASE","BASE CARDS","163","Mike Trout","Angels",0,0,""],["BASE","BASE CARDS","164","Jackson Jobe","Detroit Tigers",0,0,""],["BASE","BASE CARDS","165","Alec Burleson","St. Louis Cardinals",0,0,""],["BASE","BASE CARDS","166","Luis Robert Jr.","Chicago White Sox",0,0,""],["BASE","BASE CARDS","167","Yusei Kikuchi","Angels",0,0,""],["BASE","BASE CARDS","168","Jesús Luzardo","Philadelphia Phillies",0,0,""],["BASE","BASE CARDS","169","Edward Cabrera","Miami Marlins",0,0,""],["BASE","BASE CARDS","170","Hunter Brown","Houston Astros",0,0,""],["BASE","BASE CARDS","171","Jung Hoo Lee","San Francisco Giants",0,0,""],["BASE","BASE CARDS","172","Jordan Lawlar","Arizona Diamondbacks",0,0,""],["BASE","BASE CARDS","173","Bryan Reynolds","Pittsburgh Pirates",0,0,""],["BASE","BASE CARDS","174","Robert Suarez","San Diego Padres",0,0,""],["BASE","BASE CARDS","175","Samuel Basallo","Baltimore Orioles",1,0,""],["BASE","BASE CARDS","176","Jesús Sánchez","Houston Astros",0,0,""],["BASE","BASE CARDS","177","Angel Martínez","Cleveland Guardians",0,0,""],["BASE","BASE CARDS","178","Emmet Sheehan","Los Angeles Dodgers",0,0,""],["BASE","BASE CARDS","179","Ezequiel Tovar","Colorado Rockies",0,0,""],["BASE","BASE CARDS","180","Adley Rutschman","Baltimore Orioles",0,0,""],["BASE","BASE CARDS","181","Ian Seymour","Tampa Bay Rays",1,1,""],["BASE","BASE CARDS","182","Kyle Teel","Chicago White Sox",1,0,""],["BASE","BASE CARDS","183","Trea Turner","Philadelphia Phillies",0,0,""],["BASE","BASE CARDS","184","Jordan Westburg","Baltimore Orioles",0,0,""],["BASE","BASE CARDS","185","Ronel Blanco","Houston Astros",0,1,""],["BASE","BASE CARDS","186","Zack Gelof","Athletics",0,0,""],["BASE","BASE CARDS","187","Kyle Tucker","Chicago Cubs",0,0,""],["BASE","BASE CARDS","188","Zach Neto","Angels",0,1,""],["BASE","BASE CARDS","189","Ben Rice","New York Yankees",0,0,""],["BASE","BASE CARDS","190","Clayton Kershaw","Los Angeles Dodgers",0,0,""],["BASE","BASE CARDS","191","Josh Jung","Texas Rangers",0,1,""],["BASE","BASE CARDS","192","Seth Lugo","Kansas City Royals",0,0,""],["BASE","BASE CARDS","193","Matt Strahm","Philadelphia Phillies",0,0,""],["BASE","BASE CARDS","194","Matt Olson","Atlanta Braves",0,0,""],["BASE","BASE CARDS","195","Sal Frelick","Milwaukee Brewers",0,0,""],["BASE","BASE CARDS","196","Jazz Chisholm Jr.","New York Yankees",0,0,""],["BASE","BASE CARDS","197","Jhonkensy Noel","Cleveland Guardians",0,0,""],["BASE","BASE CARDS","198","Lars Nootbaar","St. Louis Cardinals",0,1,""],["BASE","BASE CARDS","199","Carter Jensen","Kansas City Royals",1,0,""],["BASE","BASE CARDS","200","Simeon Woods Richardson","Minnesota Twins",0,1,""],["BASE","BASE CARDS","201","Keibert Ruiz","Washington Nationals",0,1,""],["BASE","BASE CARDS","202","Shota Imanaga","Chicago Cubs",0,0,""],["BASE","BASE CARDS","203","Trey Sweeney","Detroit Tigers",0,0,""],["BASE","BASE CARDS","204","Jack Flaherty","Detroit Tigers",1,0,""],["BASE","BASE CARDS","205","Christian Montes De Oca","Arizona Diamondbacks",1,0,""],["BASE","BASE CARDS","206","Luis Severino","Athletics",0,0,""],["BASE","BASE CARDS","207","David Bednar","New York Yankees",0,0,""],["BASE","BASE CARDS","208","Parker Meadows","Detroit Tigers",0,0,""],["BASE","BASE CARDS","209","Drake Baldwin","Atlanta Braves",0,0,""],["BASE","BASE CARDS","210","Shane Bieber","Toronto Blue Jays",0,0,""],["BASE","BASE CARDS","211","Andrew Hoffman","Arizona Diamondbacks",1,0,""],["BASE","BASE CARDS","212","Chase Burns","Cincinnati Reds",1,0,""],["BASE","BASE CARDS","213","Starling Marte","New York Mets",0,1,""],["BASE","BASE CARDS","214","William Contreras","Milwaukee Brewers",0,1,""],["BASE","BASE CARDS","215","Ryan O'Hearn","San Diego Padres",0,0,""],["BASE","BASE CARDS","216","Geraldo Perdomo","Arizona Diamondbacks",0,1,""],["BASE","BASE CARDS","217","Christian Walker","Houston Astros",0,0,""],["BASE","BASE CARDS","218","Jackson Holliday","Baltimore Orioles",0,0,""],["BASE","BASE CARDS","219","Yainer Diaz","Houston Astros",0,1,""],["BASE","BASE CARDS","220","Ketel Marte","Arizona Diamondbacks",0,0,""],["BASE","BASE CARDS","221","Sal Stewart","Cincinnati Reds",1,0,""],["BASE","BASE CARDS","222","Cam Schlittler","New York Yankees",1,1,""],["BASE","BASE CARDS","223","Daulton Varsho","Toronto Blue Jays",0,0,""],["BASE","BASE CARDS","224","Davis Schneider","Toronto Blue Jays",0,0,""],["BASE","BASE CARDS","225","Dominic Smith","San Francisco Giants",0,1,""],["BASE","BASE CARDS","226","Ryan Jeffers","Minnesota Twins",0,0,""],["BASE","BASE CARDS","227","Jake Mangum","Tampa Bay Rays",0,0,""],["BASE","BASE CARDS","228","Connelly Early","Boston Red Sox",1,1,""],["BASE","BASE CARDS","229","Kenley Jansen","Angels",0,0,""],["BASE","BASE CARDS","230","Thomas Saggese","St. Louis Cardinals",0,0,""],["BASE","BASE CARDS","235","Andy Pages","Los Angeles Dodgers",0,0,""],["BASE","BASE CARDS","236","JJ Bleday","Athletics",0,0,""],["BASE","BASE CARDS","237","Trevor Rogers","Baltimore Orioles",0,1,""],["BASE","BASE CARDS","238","Corbin Burnes","Arizona Diamondbacks",0,0,""],["BASE","BASE CARDS","239","Edgar Quero","Chicago White Sox",0,0,""],["BASE","BASE CARDS","240","Julio Rodríguez","Seattle Mariners",0,0,""],["BASE","BASE CARDS","241","Seiya Suzuki","Chicago Cubs",0,0,""],["BASE","BASE CARDS","242","Parker Messick","Cleveland Guardians",1,1,""],["BASE","BASE CARDS","243","Gleyber Torres","Detroit Tigers",0,0,""],["BASE","BASE CARDS","244","Evan Carter","Texas Rangers",0,0,""],["BASE","BASE CARDS","245","Trey Yesavage","Toronto Blue Jays",1,0,""],["BASE","BASE CARDS","246","Dalton Rushing","Los Angeles Dodgers",0,0,""],["BASE","BASE CARDS","247","Moisés Ballesteros","Chicago Cubs",0,0,""],["BASE","BASE CARDS","248","Carlos Narváez","Boston Red Sox",0,1,""],["BASE","BASE CARDS","249","Christian Moore","Angels",1,0,""],["BASE","BASE CARDS","250","Giancarlo Stanton","New York Yankees",0,0,""],["BASE","BASE CARDS","251","Joey Cantillo","Cleveland Guardians",0,1,""],["BASE","BASE CARDS","252","Matt McLain","Cincinnati Reds",0,1,""],["BASE","BASE CARDS","253","Byron Buxton","Minnesota Twins",0,0,""],["BASE","BASE CARDS","254","Zac Gallen","Arizona Diamondbacks",0,0,""],["BASE","BASE CARDS","255","Joe Ryan","Minnesota Twins",0,1,""],["BASE","BASE CARDS","256","Bo Naylor","Cleveland Guardians",0,1,""],["BASE","BASE CARDS","257","Victor Mesa Jr.","Miami Marlins",0,0,""],["BASE","BASE CARDS","258","Taylor Ward","Baltimore Orioles",0,0,""],["BASE","BASE CARDS","259","Miguel Andujar","Cincinnati Reds",0,0,""],["BASE","BASE CARDS","260","Dylan Cease","Toronto Blue Jays",0,1,""],["BASE","BASE CARDS","261","Pete Crow-Armstrong","Chicago Cubs",0,0,""],["BASE","BASE CARDS","262","Adam Frazier","Kansas City Royals",0,1,""],["BASE","BASE CARDS","263","Justin Martinez","Arizona Diamondbacks",0,0,""],["BASE","BASE CARDS","264","Ozzie Albies","Atlanta Braves",0,0,""],["BASE","BASE CARDS","265","Bubba Chandler","Pittsburgh Pirates",1,0,""],["BASE","BASE CARDS","266","Spencer Horwitz","Pittsburgh Pirates",0,0,""],["BASE","BASE CARDS","267","Jorge Mateo","Baltimore Orioles",0,1,""],["BASE","BASE CARDS","268","Hyeseong Kim","Los Angeles Dodgers",0,0,""],["BASE","BASE CARDS","269","Cal Raleigh","Seattle Mariners",0,0,""],["BASE","BASE CARDS","270","Andrew McCutchen","Pittsburgh Pirates",0,0,""],["BASE","BASE CARDS","271","Austin Riley","Atlanta Braves",0,0,""],["BASE","BASE CARDS","272","Jackson Chourio","Milwaukee Brewers",0,0,""],["BASE","BASE CARDS","273","Sean Murphy","Atlanta Braves",0,1,""],["BASE","BASE CARDS","274","Brooks Baldwin","Chicago White Sox",0,0,""],["BASE","BASE CARDS","275","Nick Kurtz","Athletics",0,0,""],["BASE","BASE CARDS","278","Chris Sale","Atlanta Braves",0,0,""],["BASE","BASE CARDS","279","Jacob Young","Washington Nationals",0,0,""],["BASE","BASE CARDS","280","Trevor Larnach","Minnesota Twins",0,1,""],["BASE","BASE CARDS","281","Tarik Skubal","Detroit Tigers",0,0,""],["BASE","BASE CARDS","282","Will Smith","Los Angeles Dodgers",0,0,""],["BASE","BASE CARDS","283","Jeremy Peña","Houston Astros",0,0,""],["BASE","BASE CARDS","284","Cedric Mullins","Tampa Bay Rays",0,0,""],["BASE","BASE CARDS","285","Lane Thomas","Cleveland Guardians",0,0,""],["BASE","BASE CARDS","286","Randy Arozarena","Seattle Mariners",0,0,""],["BASE","BASE CARDS","287","Gunnar Henderson","Baltimore Orioles",0,0,""],["BASE","BASE CARDS","288","Eduardo Rodriguez","Arizona Diamondbacks",0,1,""],["BASE","BASE CARDS","289","J.P. Crawford","Seattle Mariners",0,1,""],["BASE","BASE CARDS","290","Shohei Ohtani","Los Angeles Dodgers",0,0,""],["BASE","BASE CARDS","291","Freddy Peralta","Milwaukee Brewers",0,0,""],["BASE","BASE CARDS","292","Mick Abel","Minnesota Twins",0,0,""],["BASE","BASE CARDS","293","Luis Arraez","San Diego Padres",0,1,""],["BASE","BASE CARDS","294","MacKenzie Gore","Washington Nationals",0,1,""],["BASE","BASE CARDS","295","James Wood","Washington Nationals",0,0,""],["BASE","BASE CARDS","296","TJ Friedl","Cincinnati Reds",0,0,""],["BASE","BASE CARDS","297","Anthony Volpe","New York Yankees",0,0,""],["BASE","BASE CARDS","298","Chase Meidroth","Chicago White Sox",0,0,""],["BASE","BASE CARDS","299","Matt Shaw","Chicago Cubs",0,0,""],["BASE","BASE CARDS","300","Orion Kerkering","Philadelphia Phillies",0,1,""],["BASE","BASE CARDS","301","Josh Smith","Texas Rangers",0,0,""],["BASE","BASE CARDS","302","Corey Seager","Texas Rangers",0,0,""],["BASE","BASE CARDS","303","Curtis Mead","Chicago White Sox",0,0,""],["BASE","BASE CARDS","304","Jack Leiter","Texas Rangers",0,0,""],["BASE","BASE CARDS","305","Michael Busch","Chicago Cubs",0,1,""],["BASE","BASE CARDS","306","Juan Soto","New York Mets",0,0,""],["BASE","BASE CARDS","307","Ryan Weathers","Miami Marlins",0,0,""],["BASE","BASE CARDS","308","Oneil Cruz","Pittsburgh Pirates",0,0,""],["BASE","BASE CARDS","309","Andrew Vaughn","Milwaukee Brewers",0,0,""],["BASE","BASE CARDS","310","Bryce Eldridge","San Francisco Giants",1,0,""],["BASE","BASE CARDS","314","Carlos Estévez","Kansas City Royals",0,0,""],["BASE","BASE CARDS","315","Robinson Piña","Toronto Blue Jays",1,0,""],["BASE","BASE CARDS","316","Merrill Kelly","Texas Rangers",0,1,""],["BASE","BASE CARDS","317","Kodai Senga","New York Mets",0,1,""],["BASE","BASE CARDS","318","Victor Scott II","St. Louis Cardinals",0,0,""],["BASE","BASE CARDS","319","Matt Wallner","Minnesota Twins",0,0,""],["BASE","BASE CARDS","320","Salvador Perez","Kansas City Royals",0,0,""],["BASE","BASE CARDS","321","Kody Clemens","Minnesota Twins",0,0,""],["BASE","BASE CARDS","322","Fernando Tatis Jr.","San Diego Padres",0,0,""],["BASE","BASE CARDS","323","Heriberto Hernández","Miami Marlins",1,0,""],["BASE","BASE CARDS","324","Denzel Clarke","Athletics",0,0,""],["BASE","BASE CARDS","325","Brice Turang","Milwaukee Brewers",0,0,""],["BASE","BASE CARDS","326","Carson Kelly","Chicago Cubs",0,1,""],["BASE","BASE CARDS","327","Willy Adames","San Francisco Giants",0,0,""],["BASE","BASE CARDS","328","José Caballero","New York Yankees",0,0,""],["BASE","BASE CARDS","329","Grant Taylor","Chicago White Sox",1,1,""],["BASE","BASE CARDS","330","Cristian Javier","Houston Astros",0,0,""],["BASE","BASE CARDS","331","Rhys Hoskins","Milwaukee Brewers",0,0,""],["BASE","BASE CARDS","332","Christian Yelich","Milwaukee Brewers",0,0,""],["BASE","BASE CARDS","338","Colton Cowser","Baltimore Orioles",0,0,""],["BASE","BASE CARDS","339","Lenyn Sosa","Chicago White Sox",0,0,""],["BASE","BASE CARDS","340","Wyatt Langford","Texas Rangers",0,0,""],["BASE","BASE CARDS","341","Alejandro Kirk","Toronto Blue Jays",0,1,""],["BASE","BASE CARDS","342","Michael Harris II","Atlanta Braves",0,0,""],["BASE","BASE CARDS","343","Kerry Carpenter","Detroit Tigers",0,1,""],["BASE","BASE CARDS","344","David Hamilton","Boston Red Sox",0,1,""],["BASE","BASE CARDS","345","Otto Lopez","Miami Marlins",0,0,""],["BASE","BASE CARDS","346","Hunter Goodman","Colorado Rockies",0,0,""],["BASE","BASE CARDS","347","Danny Jansen","Milwaukee Brewers",0,1,""],["BASE","BASE CARDS","348","Shane Baz","Tampa Bay Rays",0,1,""],["BASE","BASE CARDS","349","CJ Abrams","Washington Nationals",0,0,""],["BASE","BASE CARDS","350","Freddie Freeman","Los Angeles Dodgers",0,0,""],["BASE","BASE CARDS","351","Jackson Merrill","San Diego Padres",0,0,""],["BASE","BASE CARDS","352","Gavin Lux","Cincinnati Reds",0,0,""],["BASE","BASE CARDS","353","Shane Smith","Chicago White Sox",0,1,""],["BASE","BASE CARDS","354","Joey Loperfido","Toronto Blue Jays",0,0,""],["BASE","BASE CARDS","355","Brenton Doyle","Colorado Rockies",0,0,""],["BASE","BASE CARDS","356","Marcelo Mayer","Boston Red Sox",0,0,""],["BASE","BASE CARDS","357","Harrison Bader","Philadelphia Phillies",0,0,""],["BASE","BASE CARDS","358","Masyn Winn","St. Louis Cardinals",0,0,""],["BASE","BASE CARDS","359","Aroldis Chapman","Boston Red Sox",1,0,""],["BASE","BASE CARDS","360","Owen Caissie","Chicago Cubs",1,1,"Back Variation"],["BASE","BASE CARDS","361","Gabriel Moreno","Arizona Diamondbacks",0,0,""],["BASE","BASE CARDS","362","Wilyer Abreu","Boston Red Sox",0,0,""],["BASE","BASE CARDS","363","Nick Castellanos","Philadelphia Phillies",0,0,""],["BASE","BASE CARDS","364","C.J. Kayfus","Cleveland Guardians",1,0,""],["BASE","BASE CARDS","365","Kyle Isbel","Kansas City Royals",0,0,""],["BASE","BASE CARDS","366","Marcus Semien","Texas Rangers",0,0,""],["BASE","BASE CARDS","367","Kristian Campbell","Boston Red Sox",0,0,""],["BASE","BASE CARDS","368","Brayan Rocchio","Cleveland Guardians",0,0,""],["BASE","BASE CARDS","369","Brandon Lowe","Tampa Bay Rays",0,0,""],["BASE","BASE CARDS","370","Addison Barger","Toronto Blue Jays",0,0,""],["BASE","BASE CARDS","371","Yoshinobu Yamamoto","Los Angeles Dodgers",0,0,""],["BASE","BASE CARDS","380","Junior Caminero","Tampa Bay Rays",0,0,""],["BASE","BASE CARDS","381","Ryan McMahon","New York Yankees",0,0,""],["BASE","BASE CARDS","382","Bryson Stott","Philadelphia Phillies",0,0,""],["BASE","BASE CARDS","383","Corbin Carroll","Arizona Diamondbacks",0,0,""],["BASE","BASE CARDS","384","Adolis García","Texas Rangers",0,0,""],["BASE","BASE CARDS","385","Carlos Rodón","New York Yankees",0,1,""],["BASE","BASE CARDS","386","Payton Tolle","Boston Red Sox",1,0,""],["BASE","BASE CARDS","395","Kyle Stowers","Miami Marlins",0,1,""],["BASE","BASE CARDS","396","Cade Horton","Chicago Cubs",0,0,""],["BASE","BASE CARDS","397","Ceddanne Rafaela","Boston Red Sox",0,0,""],["BASE","BASE CARDS","398","Zach McKinstry","Detroit Tigers",0,0,""],["BASE","BASE CARDS","399","Jordan Walker","St. Louis Cardinals",0,0,""],["BASE","BASE CARDS","400","Mickey Moniak","Colorado Rockies",0,1,""],["INSERT","BASE CARDS CHROME VARIATION","9","Josh Hader","Houston Astros",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","10","Aaron Judge","New York Yankees",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","11","Jose Altuve","Houston Astros",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","12","Mookie Betts","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","13","Agustín Ramírez","Miami Marlins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","14","Jhoan Duran","Philadelphia Phillies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","15","Jarren Duran","Boston Red Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","16","Kyle Bradish","Baltimore Orioles",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","17","Jacob Wilson","Athletics",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","18","Eury Pérez","Miami Marlins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","19","Brett Baty","New York Mets",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","20","Jonathan Aranda","Tampa Bay Rays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","21","Ernie Clement","Toronto Blue Jays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","22","Kris Bryant","Colorado Rockies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","23","Garrett Crochet","Boston Red Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","24","Luis Castillo","Seattle Mariners",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","25","Yordan Alvarez","Houston Astros",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","26","Jaden Hill","Colorado Rockies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","27","Casey Schmitt","San Francisco Giants",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","28","Nico Hoerner","Chicago Cubs",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","29","Eugenio Suárez","Seattle Mariners",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","30","Connor Norby","Miami Marlins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","31","Andrew Abbott","Cincinnati Reds",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","32","Andre Granillo","St. Louis Cardinals",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","33","Paul Skenes","Pittsburgh Pirates",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","34","Ryan Pepiot","Tampa Bay Rays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","35","Yoán Moncada","Angels",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","36","Edwin Díaz","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","37","Jorge Soler","Angels",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","38","Taj Bradley","Minnesota Twins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","39","Roki Sasaki","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","40","Nathan Eovaldi","Texas Rangers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","41","Spencer Strider","Atlanta Braves",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","42","Jo Adell","Angels",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","43","Luis García Jr.","Washington Nationals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","44","Austin Martin","Minnesota Twins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","45","Michael A. Taylor","Chicago White Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","46","Vladimir Guerrero Jr.","Toronto Blue Jays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","47","Yandy Díaz","Tampa Bay Rays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","48","Dylan Beavers","Baltimore Orioles",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","49","Coby Mayo","Baltimore Orioles",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","50","Robert Hassell III","Washington Nationals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","51","Jurickson Profar","Atlanta Braves",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","52","José Ramírez","Cleveland Guardians",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","53","Hunter Greene","Cincinnati Reds",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","54","Jeff McNeil","New York Mets",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","55","Ronald Acuña Jr.","Atlanta Braves",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","56","José Berríos","Toronto Blue Jays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","57","Patrick Bailey","San Francisco Giants",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","58","Chandler Simpson","Tampa Bay Rays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","59","Harry Ford","Seattle Mariners",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","60","Brooks Lee","Minnesota Twins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","61","Miguel Vargas","Chicago White Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","62","Rafael Devers","San Francisco Giants",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","63","Mike Yastrzemski","Kansas City Royals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","64","Mitch Keller","Pittsburgh Pirates",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","65","Mason Miller","San Diego Padres",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","66","Darell Hernaiz","Athletics",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","67","Luis Morales","Athletics",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","68","Cade Cavalli","Washington Nationals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","69","Cam Smith","Houston Astros",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","70","Elly De La Cruz","Cincinnati Reds",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","71","Reese Olson","Detroit Tigers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","72","Bryce Harper","Philadelphia Phillies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","73","Dillon Dingler","Detroit Tigers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","74","Tanner Bibee","Cleveland Guardians",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","75","Dane Myers","Miami Marlins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","76","Sandy Alcantara","Miami Marlins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","77","Mark Vientos","New York Mets",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","78","Noah Cameron","Kansas City Royals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","79","Carson Whisenhunt","San Francisco Giants",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","80","Austin Hays","Cincinnati Reds",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","81","Alec Bohm","Philadelphia Phillies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","82","Logan Webb","San Francisco Giants",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","83","Bradley Blalock","Colorado Rockies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","84","Maikel Garcia","Kansas City Royals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","85","Royce Lewis","Minnesota Twins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","86","Roman Anthony","Boston Red Sox",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","87","Slade Cecconi","Cleveland Guardians",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","88","Owen Caissie","Chicago Cubs",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","89","Ramón Laureano","San Diego Padres",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","90","Mike Tauchman","Chicago White Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","91","Chase Dollander","Colorado Rockies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","92","Kyle Freeland","Colorado Rockies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","93","Teoscar Hernández","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","94","Lawrence Butler","Athletics",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","95","Brendan Donovan","St. Louis Cardinals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","96","Mike Burrows","Pittsburgh Pirates",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","97","Dansby Swanson","Chicago Cubs",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","98","Jacob deGrom","Texas Rangers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","99","Bryan Woo","Seattle Mariners",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","100","Noelvi Marte","Cincinnati Reds",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","101","Tyler Soderstrom","Athletics",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","102","Isaac Collins","Milwaukee Brewers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","103","Brent Rooker","Athletics",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","104","Jasson Domínguez","New York Yankees",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","105","Max Muncy","Athletics",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","106","Spencer Torkelson","Detroit Tigers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","107","Javier Báez","Detroit Tigers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","108","George Springer","Toronto Blue Jays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","109","Caleb Durbin","Milwaukee Brewers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","110","Cristopher Sánchez","Philadelphia Phillies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","111","Robbie Ray","San Francisco Giants",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","112","Jhostynxon Garcia","Boston Red Sox",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","113","Cole Ragans","Kansas City Royals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","114","Matt Chapman","San Francisco Giants",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","115","Jack Dreyer","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","116","Luke Keaschall","Minnesota Twins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","117","Nolan Schanuel","Angels",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","118","Brandon Sproat","New York Mets",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","119","Brandon Nimmo","Texas Rangers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","120","Yu Darvish","San Diego Padres",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","121","Caden Dana","Angels",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","122","Bo Bichette","Toronto Blue Jays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","123","Luis Gil","New York Yankees",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","124","Daylen Lile","Washington Nationals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","125","Ha-Seong Kim","Atlanta Braves",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","126","Brandon Pfaadt","Arizona Diamondbacks",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","127","Gavin Sheets","San Diego Padres",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","128","Anthony Seigler","Milwaukee Brewers",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","129","Josh Naylor","Seattle Mariners",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","130","Max Fried","New York Yankees",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","131","Ryan Mountcastle","Baltimore Orioles",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","132","Luisangel Acuña","New York Mets",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","133","Kyle Manzardo","Cleveland Guardians",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","134","Braxton Ashcraft","Pittsburgh Pirates",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","135","Jorge Polanco","Seattle Mariners",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","136","Jac Caglianone","Kansas City Royals",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","137","Jonah Tong","New York Mets",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","138","Tyler Stephenson","Cincinnati Reds",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","139","Steven Kwan","Cleveland Guardians",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","140","Victor Robles","Seattle Mariners",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","141","Jared Jones","Pittsburgh Pirates",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","142","Cole Young","Seattle Mariners",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","143","Manny Machado","San Diego Padres",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","144","Jacob Misiorowski","Milwaukee Brewers",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","145","Hurston Waldrep","Atlanta Braves",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","146","Francisco Lindor","New York Mets",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","147","Jordan Beck","Colorado Rockies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","148","Bradgley Rodríguez","San Diego Padres",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","149","Luis Rengifo","Angels",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","150","Nolan McLean","New York Mets",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","151","Ke'Bryan Hayes","Cincinnati Reds",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","152","Riley Greene","Detroit Tigers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","153","Brady House","Washington Nationals",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","154","Carlos Correa","Houston Astros",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","155","Cole Wilcox","Seattle Mariners",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","156","Willson Contreras","St. Louis Cardinals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","157","Kevin Alcántara","Chicago Cubs",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","158","Max Muncy","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","159","Kyle Schwarber","Philadelphia Phillies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","160","Bobby Witt Jr.","Kansas City Royals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","161","Carson Williams","Tampa Bay Rays",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","162","Sonny Gray","Boston Red Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","163","Mike Trout","Angels",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","164","Jackson Jobe","Detroit Tigers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","165","Alec Burleson","St. Louis Cardinals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","166","Luis Robert Jr.","Chicago White Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","167","Yusei Kikuchi","Angels",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","168","Jesús Luzardo","Philadelphia Phillies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","169","Edward Cabrera","Miami Marlins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","170","Hunter Brown","Houston Astros",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","171","Jung Hoo Lee","San Francisco Giants",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","172","Jordan Lawlar","Arizona Diamondbacks",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","173","Bryan Reynolds","Pittsburgh Pirates",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","174","Robert Suarez","San Diego Padres",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","175","Samuel Basallo","Baltimore Orioles",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","176","Jesús Sánchez","Houston Astros",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","177","Angel Martínez","Cleveland Guardians",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","178","Emmet Sheehan","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","179","Ezequiel Tovar","Colorado Rockies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","180","Adley Rutschman","Baltimore Orioles",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","181","Ian Seymour","Tampa Bay Rays",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","182","Kyle Teel","Chicago White Sox",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","183","Trea Turner","Philadelphia Phillies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","184","Jordan Westburg","Baltimore Orioles",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","185","Ronel Blanco","Houston Astros",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","186","Zack Gelof","Athletics",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","187","Kyle Tucker","Chicago Cubs",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","188","Zach Neto","Angels",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","189","Ben Rice","New York Yankees",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","190","Clayton Kershaw","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","191","Josh Jung","Texas Rangers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","192","Seth Lugo","Kansas City Royals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","193","Matt Strahm","Philadelphia Phillies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","194","Matt Olson","Atlanta Braves",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","195","Sal Frelick","Milwaukee Brewers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","196","Jazz Chisholm Jr.","New York Yankees",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","197","Jhonkensy Noel","Cleveland Guardians",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","198","Lars Nootbaar","St. Louis Cardinals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","199","Carter Jensen","Kansas City Royals",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","200","Simeon Woods Richardson","Minnesota Twins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","201","Keibert Ruiz","Washington Nationals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","202","Shota Imanaga","Chicago Cubs",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","203","Trey Sweeney","Detroit Tigers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","204","Jack Flaherty","Detroit Tigers",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","205","Christian Montes De Oca","Arizona Diamondbacks",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","206","Luis Severino","Athletics",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","207","David Bednar","New York Yankees",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","208","Parker Meadows","Detroit Tigers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","209","Drake Baldwin","Atlanta Braves",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","210","Shane Bieber","Toronto Blue Jays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","211","Andrew Hoffman","Arizona Diamondbacks",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","212","Chase Burns","Cincinnati Reds",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","213","Starling Marte","New York Mets",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","214","William Contreras","Milwaukee Brewers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","215","Ryan O'Hearn","San Diego Padres",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","216","Geraldo Perdomo","Arizona Diamondbacks",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","217","Christian Walker","Houston Astros",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","218","Jackson Holliday","Baltimore Orioles",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","219","Yainer Diaz","Houston Astros",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","220","Ketel Marte","Arizona Diamondbacks",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","221","Sal Stewart","Cincinnati Reds",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","222","Cam Schlittler","New York Yankees",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","223","Daulton Varsho","Toronto Blue Jays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","224","Davis Schneider","Toronto Blue Jays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","225","Dominic Smith","San Francisco Giants",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","226","Ryan Jeffers","Minnesota Twins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","227","Jake Mangum","Tampa Bay Rays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","228","Connelly Early","Boston Red Sox",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","229","Kenley Jansen","Angels",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","230","Thomas Saggese","St. Louis Cardinals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","235","Andy Pages","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","236","JJ Bleday","Athletics",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","237","Trevor Rogers","Baltimore Orioles",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","238","Corbin Burnes","Arizona Diamondbacks",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","239","Edgar Quero","Chicago White Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","240","Julio Rodríguez","Seattle Mariners",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","241","Seiya Suzuki","Chicago Cubs",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","242","Parker Messick","Cleveland Guardians",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","243","Gleyber Torres","Detroit Tigers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","244","Evan Carter","Texas Rangers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","245","Trey Yesavage","Toronto Blue Jays",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","246","Dalton Rushing","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","247","Moisés Ballesteros","Chicago Cubs",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","248","Carlos Narváez","Boston Red Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","249","Christian Moore","Angels",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","250","Giancarlo Stanton","New York Yankees",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","251","Joey Cantillo","Cleveland Guardians",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","252","Matt McLain","Cincinnati Reds",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","253","Byron Buxton","Minnesota Twins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","254","Zac Gallen","Arizona Diamondbacks",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","255","Joe Ryan","Minnesota Twins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","256","Bo Naylor","Cleveland Guardians",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","257","Victor MESA JR.","Miami Marlins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","258","Taylor Ward","Baltimore Orioles",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","259","Miguel Andujar","Cincinnati Reds",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","260","Dylan Cease","Toronto Blue Jays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","261","Pete Crow-Armstrong","Chicago Cubs",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","262","Adam Frazier","Kansas City Royals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","263","Justin Martinez","Arizona Diamondbacks",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","264","Ozzie Albies","Atlanta Braves",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","265","Bubba Chandler","Pittsburgh Pirates",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","266","Spencer Horwitz","Pittsburgh Pirates",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","267","Jorge Mateo","Baltimore Orioles",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","268","Hyeseong Kim","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","269","Cal Raleigh","Seattle Mariners",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","270","Andrew McCutchen","Pittsburgh Pirates",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","271","Austin Riley","Atlanta Braves",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","272","Jackson Chourio","Milwaukee Brewers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","273","Sean Murphy","Atlanta Braves",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","274","Brooks Baldwin","Chicago White Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","275","Nick Kurtz","Athletics",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","278","Chris Sale","Atlanta Braves",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","279","Jacob Young","Washington Nationals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","280","Trevor Larnach","Minnesota Twins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","281","Tarik Skubal","Detroit Tigers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","282","Will Smith","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","283","Jeremy Peña","Houston Astros",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","284","Cedric Mullins","Tampa Bay Rays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","285","Lane Thomas","Cleveland Guardians",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","286","Randy Arozarena","Seattle Mariners",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","287","Gunnar Henderson","Baltimore Orioles",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","288","Eduardo Rodriguez","Arizona Diamondbacks",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","289","J.P. Crawford","Seattle Mariners",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","290","Shohei Ohtani","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","291","Freddy Peralta","Milwaukee Brewers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","292","Mick Abel","Minnesota Twins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","293","Luis Arraez","San Diego Padres",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","294","MacKenzie Gore","Washington Nationals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","295","James Wood","Washington Nationals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","296","TJ Friedl","Cincinnati Reds",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","297","Anthony Volpe","New York Yankees",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","298","Chase Meidroth","Chicago White Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","299","Matt Shaw","Chicago Cubs",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","300","Orion Kerkering","Philadelphia Phillies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","301","Josh Smith","Texas Rangers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","302","Corey Seager","Texas Rangers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","303","Curtis Mead","Chicago White Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","304","Jack Leiter","Texas Rangers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","305","Michael Busch","Chicago Cubs",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","306","Juan Soto","New York Mets",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","307","Ryan Weathers","Miami Marlins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","308","Oneil Cruz","Pittsburgh Pirates",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","309","Andrew Vaughn","Milwaukee Brewers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","310","Bryce Eldridge","San Francisco Giants",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","314","Carlos Estévez","Kansas City Royals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","315","Robinson Piña","Toronto Blue Jays",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","316","Merrill Kelly","Texas Rangers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","317","Kodai Senga","New York Mets",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","318","Victor Scott II","St. Louis Cardinals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","319","Matt Wallner","Minnesota Twins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","320","Salvador Perez","Kansas City Royals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","321","Kody Clemens","Minnesota Twins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","322","Fernando Tatis Jr.","San Diego Padres",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","323","Heriberto Hernández","Miami Marlins",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","324","Denzel Clarke","Athletics",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","325","Brice Turang","Milwaukee Brewers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","326","Carson Kelly","Chicago Cubs",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","327","Willy Adames","San Francisco Giants",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","328","José Caballero","New York Yankees",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","329","Grant Taylor","Chicago White Sox",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","330","Cristian Javier","Houston Astros",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","331","Rhys Hoskins","Milwaukee Brewers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","332","Christian Yelich","Milwaukee Brewers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","338","Colton Cowser","Baltimore Orioles",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","339","Lenyn Sosa","Chicago White Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","340","Wyatt Langford","Texas Rangers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","341","Alejandro Kirk","Toronto Blue Jays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","342","Michael Harris II","Atlanta Braves",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","343","Kerry Carpenter","Detroit Tigers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","344","David Hamilton","Boston Red Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","345","Otto Lopez","Miami Marlins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","346","Hunter Goodman","Colorado Rockies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","347","Danny Jansen","Milwaukee Brewers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","348","Shane Baz","Tampa Bay Rays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","349","CJ Abrams","Washington Nationals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","350","Freddie Freeman","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","351","Jackson Merrill","San Diego Padres",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","352","Gavin Lux","Cincinnati Reds",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","353","Shane Smith","Chicago White Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","354","Joey Loperfido","Toronto Blue Jays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","355","Brenton Doyle","Colorado Rockies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","356","Marcelo Mayer","Boston Red Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","357","Harrison Bader","Philadelphia Phillies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","358","Masyn Winn","St. Louis Cardinals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","359","Aroldis Chapman","Boston Red Sox",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","360","Owen Caissie","Chicago Cubs",1,0,"Back Variation"],["INSERT","BASE CARDS CHROME VARIATION","361","Gabriel Moreno","Arizona Diamondbacks",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","362","Wilyer Abreu","Boston Red Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","363","Nick Castellanos","Philadelphia Phillies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","364","C.J. Kayfus","Cleveland Guardians",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","365","Kyle Isbel","Kansas City Royals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","366","Marcus Semien","Texas Rangers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","367","Kristian Campbell","Boston Red Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","368","Brayan Rocchio","Cleveland Guardians",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","369","Brandon Lowe","Tampa Bay Rays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","370","Addison Barger","Toronto Blue Jays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","371","Yoshinobu Yamamoto","Los Angeles Dodgers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","380","Junior Caminero","Tampa Bay Rays",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","381","Ryan McMahon","New York Yankees",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","382","Bryson Stott","Philadelphia Phillies",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","383","Corbin Carroll","Arizona Diamondbacks",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","384","Adolis García","Texas Rangers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","385","Carlos Rodón","New York Yankees",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","386","Payton Tolle","Boston Red Sox",1,0,""],["INSERT","BASE CARDS CHROME VARIATION","395","Kyle Stowers","Miami Marlins",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","396","Cade Horton","Chicago Cubs",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","397","Ceddanne Rafaela","Boston Red Sox",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","398","Zach McKinstry","Detroit Tigers",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","399","Jordan Walker","St. Louis Cardinals",0,0,""],["INSERT","BASE CARDS CHROME VARIATION","400","Mickey Moniak","Colorado Rockies",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","1","Aaron Judge","New York Yankees",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","1","Trea Turner","Philadelphia Phillies",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","2","Kyle Schwarber","Philadelphia Phillies",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","2","Cal Raleigh","Seattle Mariners",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","3","Kyle Schwarber","Philadelphia Phillies",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","3","Cal Raleigh","Seattle Mariners",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","4","Oneil Cruz","Pittsburgh Pirates",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","4","José Caballero","New York Yankees",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","5","Freddy Peralta","Milwaukee Brewers",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","5","Max Fried","New York Yankees",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","6","Logan Webb","San Francisco Giants",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","6","Garrett Crochet","Boston Red Sox",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","7","Paul Skenes","Pittsburgh Pirates",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","7","Tarik Skubal","Detroit Tigers",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","8","Robert Suarez","San Diego Padres",0,0,""],["INSERT","LEAGUE LEADERS CHROME VARIATION","8","Carlos Estévez","Kansas City Royals",0,0,""],["INSERT","RECORD BREAKERS CHROME VARIATION","231","Cal Raleigh","Seattle Mariners",0,0,""],["INSERT","RECORD BREAKERS CHROME VARIATION","232","Pete Alonso","New York Mets",0,0,""],["INSERT","RECORD BREAKERS CHROME VARIATION","233","Elly De La Cruz","Cincinnati Reds",0,0,""],["INSERT","RECORD BREAKERS CHROME VARIATION","234","Riley Greene","Detroit Tigers",0,0,""],["INSERT","AL CHAMPIONS CHROME VARIATION","276","","Toronto Blue Jays",0,0,""],["INSERT","NL CHAMPIONS CHROME VARIATION","277","","Los Angeles Dodgers",0,0,""],["INSERT","WORLD SERIES HIGHLIGHTS CHROME VARIATION","311","","Los Angeles Dodgers",0,0,""],["INSERT","WORLD SERIES HIGHLIGHTS CHROME VARIATION","312","","Toronto Blue Jays",0,0,""],["INSERT","WORLD SERIES HIGHLIGHTS CHROME VARIATION","313","","Los Angeles Dodgers",0,0,""],["INSERT","TURN BACK THE CLOCK CHROME VARIATION","333","Miguel Cabrera","Detroit Tigers",0,0,""],["INSERT","TURN BACK THE CLOCK CHROME VARIATION","334","Carlos Beltrán","New York Yankees",0,0,""],["INSERT","TURN BACK THE CLOCK CHROME VARIATION","335","Derek Jeter","New York Yankees",0,0,""],["INSERT","TURN BACK THE CLOCK CHROME VARIATION","336","Mike Piazza","San Diego Padres",0,0,""],["INSERT","TURN BACK THE CLOCK CHROME VARIATION","337","Ichiro","Seattle Mariners",0,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","372","Philip Abner","Arizona Diamondbacks",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","372","Eduarniel Núñez","Athletics",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","372","Didier Fuentes","Atlanta Braves",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","372","Jonathan Pintaro","New York Mets",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","373","Nathan Church","St. Louis Cardinals",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","373","Troy Johnston","Miami Marlins",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","373","Jacob Melton","Houston Astros",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","373","Carlos Cortes","Athletics",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","374","Cam Devanney","Pittsburgh Pirates",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","374","Chad Stevens","Angels",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","374","Brice Matthews","Houston Astros",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","374","Ryan Ritter","Colorado Rockies",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","375","Zachary Maxwell","Cincinnati Reds",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","375","Dylan Smith","Detroit Tigers",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","375","Paul Gervase","Los Angeles Dodgers",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","375","Jack Perkins","Athletics",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","376","Will Banfield","Cincinnati Reds",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","376","C.J. Stubbs","Washington Nationals",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","376","Jimmy Crooks","St. Louis Cardinals",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","376","Rafael Flores","Pittsburgh Pirates",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","377","Cody Freeman","Texas Rangers",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","377","Otto Kemp","Philadelphia Phillies",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","377","Jeremiah Jackson","Baltimore Orioles",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","377","Bob Seymour","Tampa Bay Rays",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","378","Andry Lara","Washington Nationals",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","378","Wikelman González","Chicago White Sox",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","378","Juan Burgos","Arizona Diamondbacks",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","378","Jacob Palisch","Chicago White Sox",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","379","George Valera","Cleveland Guardians",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","379","Will Robertson","Pittsburgh Pirates",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","379","Colby Thomas","Athletics",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","379","Tristin English","Arizona Diamondbacks",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","387","Dugan Darnell","Colorado Rockies",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","387","Nick Raquet","St. Louis Cardinals",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","387","Troy Melton","Detroit Tigers",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","387","Jack Little","Los Angeles Dodgers",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","388","Justin Dean","Los Angeles Dodgers",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","388","Tristan Peters","Tampa Bay Rays",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","388","Kenedy Corona","Houston Astros",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","388","Drew Gilbert","San Francisco Giants",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","389","Alan Rangel","Philadelphia Phillies",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","389","Elvis Alvarado","Athletics",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","389","Carson Seymour","San Francisco Giants",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","389","Joe Rock","Tampa Bay Rays",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","390","Denzer Guzman","Angels",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","390","Maximo Acosta","Miami Marlins",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","390","Alex Freeland","Los Angeles Dodgers",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","390","Colson Montgomery","Chicago White Sox",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","391","Taylor Rashi","Arizona Diamondbacks",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","391","Shinnosuke Ogasawara","Washington Nationals",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","391","Luinder Avila","Kansas City Royals",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","391","PJ Poulin","Washington Nationals",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","392","Zach Cole","Houston Astros",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","392","Jakob Marsee","Miami Marlins",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","392","Yanquiel Fernández","Colorado Rockies",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","392","Petey Halpin","Cleveland Guardians",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","393","Mitch Farris","Angels",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","393","Andrew Alvarez","Washington Nationals",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","393","Joel Peguero","San Francisco Giants",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","393","Kyle Backhus","Arizona Diamondbacks",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","394","Jack Winkler","Miami Marlins",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","394","Warming Bernabel","Colorado Rockies",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","394","Kyle Karros","Colorado Rockies",1,0,""],["INSERT","QUAD ROOKIES CHROME VARIATION","394","César Prieto","St. Louis Cardinals",1,0,""],["INSERT","ALL STAR LOGO VARIATION","10","Aaron Judge","New York Yankees",0,0,""],["INSERT","ALL STAR LOGO VARIATION","17","Jacob Wilson","Athletics",0,0,""],["INSERT","ALL STAR LOGO VARIATION","33","Paul Skenes","Pittsburgh Pirates",0,0,""],["INSERT","ALL STAR LOGO VARIATION","46","Vladimir Guerrero Jr.","Toronto Blue Jays",0,0,""],["INSERT","ALL STAR LOGO VARIATION","55","Ronald Acuña Jr.","Atlanta Braves",0,0,""],["INSERT","ALL STAR LOGO VARIATION","107","Javier Báez","Detroit Tigers",0,0,""],["INSERT","ALL STAR LOGO VARIATION","143","Manny Machado","San Diego Padres",0,0,""],["INSERT","ALL STAR LOGO VARIATION","146","Francisco Lindor","New York Mets",0,0,""],["INSERT","ALL STAR LOGO VARIATION","152","Riley Greene","Detroit Tigers",0,0,""],["INSERT","ALL STAR LOGO VARIATION","187","Kyle Tucker","Chicago Cubs",0,0,""],["INSERT","ALL STAR LOGO VARIATION","215","Ryan O'Hearn","San Diego Padres",0,0,""],["INSERT","ALL STAR LOGO VARIATION","220","Ketel Marte","Arizona Diamondbacks",0,0,""],["INSERT","ALL STAR LOGO VARIATION","243","Gleyber Torres","Detroit Tigers",0,0,""],["INSERT","ALL STAR LOGO VARIATION","261","Pete Crow-Armstrong","Chicago Cubs",0,0,""],["INSERT","ALL STAR LOGO VARIATION","269","Cal Raleigh","Seattle Mariners",0,0,""],["INSERT","ALL STAR LOGO VARIATION","281","Tarik Skubal","Detroit Tigers",0,0,""],["INSERT","ALL STAR LOGO VARIATION","282","Will Smith","Los Angeles Dodgers",0,0,""],["INSERT","ALL STAR LOGO VARIATION","290","Shohei Ohtani","Los Angeles Dodgers",0,0,""],["INSERT","ALL STAR LOGO VARIATION","350","Freddie Freeman","Los Angeles Dodgers",0,0,""],["INSERT","ALL STAR LOGO VARIATION","380","Junior Caminero","Tampa Bay Rays",0,0,""],["INSERT","IMAGE VARIATIONS","10","Aaron Judge","New York Yankees",0,0,""],["INSERT","IMAGE VARIATIONS","11","Jose Altuve","Houston Astros",0,0,""],["INSERT","IMAGE VARIATIONS","12","Mookie Betts","Los Angeles Dodgers",0,0,""],["INSERT","IMAGE VARIATIONS","18","Eury Pérez","Miami Marlins",0,0,""],["INSERT","IMAGE VARIATIONS","33","Paul Skenes","Pittsburgh Pirates",0,0,""],["INSERT","IMAGE VARIATIONS","46","Vladimir Guerrero Jr.","Toronto Blue Jays",0,0,""],["INSERT","IMAGE VARIATIONS","52","José Ramírez","Cleveland Guardians",0,0,""],["INSERT","IMAGE VARIATIONS","55","Ronald Acuña Jr.","Atlanta Braves",0,0,""],["INSERT","IMAGE VARIATIONS","62","Rafael Devers","San Francisco Giants",0,0,""],["INSERT","IMAGE VARIATIONS","70","Elly De La Cruz","Cincinnati Reds",0,0,""],["INSERT","IMAGE VARIATIONS","72","Bryce Harper","Philadelphia Phillies",0,0,""],["INSERT","IMAGE VARIATIONS","86","Roman Anthony","Boston Red Sox",1,0,""],["INSERT","IMAGE VARIATIONS","136","Jac Caglianone","Kansas City Royals",1,0,""],["INSERT","IMAGE VARIATIONS","137","Jonah Tong","New York Mets",1,0,""],["INSERT","IMAGE VARIATIONS","143","Manny Machado","San Diego Padres",0,0,""],["INSERT","IMAGE VARIATIONS","144","Jacob Misiorowski","Milwaukee Brewers",1,0,""],["INSERT","IMAGE VARIATIONS","146","Francisco Lindor","New York Mets",0,0,""],["INSERT","IMAGE VARIATIONS","150","Nolan McLean","New York Mets",1,0,""],["INSERT","IMAGE VARIATIONS","159","Kyle Schwarber","Philadelphia Phillies",0,0,""],["INSERT","IMAGE VARIATIONS","160","Bobby Witt Jr.","Kansas City Royals",0,0,""],["INSERT","IMAGE VARIATIONS","163","Mike Trout","Angels",0,0,""],["INSERT","IMAGE VARIATIONS","175","Samuel Basallo","Baltimore Orioles",1,0,""],["INSERT","IMAGE VARIATIONS","182","Kyle Teel","Chicago White Sox",1,0,""],["INSERT","IMAGE VARIATIONS","190","Clayton Kershaw","Los Angeles Dodgers",0,0,""],["INSERT","IMAGE VARIATIONS","212","Chase Burns","Cincinnati Reds",1,0,""],["INSERT","IMAGE VARIATIONS","240","Julio Rodríguez","Seattle Mariners",0,0,""],["INSERT","IMAGE VARIATIONS","250","Giancarlo Stanton","New York Yankees",0,0,""],["INSERT","IMAGE VARIATIONS","253","Byron Buxton","Minnesota Twins",0,0,""],["INSERT","IMAGE VARIATIONS","261","Pete Crow-Armstrong","Chicago Cubs",0,0,""],["INSERT","IMAGE VARIATIONS","265","Bubba Chandler","Pittsburgh Pirates",1,0,""],["INSERT","IMAGE VARIATIONS","270","Andrew McCutchen","Pittsburgh Pirates",0,0,""],["INSERT","IMAGE VARIATIONS","272","Jackson Chourio","Milwaukee Brewers",0,0,""],["INSERT","IMAGE VARIATIONS","275","Nick Kurtz","Athletics",0,0,""],["INSERT","IMAGE VARIATIONS","281","Tarik Skubal","Detroit Tigers",0,0,""],["INSERT","IMAGE VARIATIONS","286","Randy Arozarena","Seattle Mariners",0,0,""],["INSERT","IMAGE VARIATIONS","287","Gunnar Henderson","Baltimore Orioles",0,0,""],["INSERT","IMAGE VARIATIONS","290","Shohei Ohtani","Los Angeles Dodgers",0,0,""],["INSERT","IMAGE VARIATIONS","295","James Wood","Washington Nationals",0,0,""],["INSERT","IMAGE VARIATIONS","302","Corey Seager","Texas Rangers",0,0,""],["INSERT","IMAGE VARIATIONS","306","Juan Soto","New York Mets",0,0,""],["INSERT","IMAGE VARIATIONS","322","Fernando Tatis Jr.","San Diego Padres",0,0,""],["INSERT","IMAGE VARIATIONS","332","Christian Yelich","Milwaukee Brewers",0,0,""],["INSERT","IMAGE VARIATIONS","340","Wyatt Langford","Texas Rangers",0,0,""],["INSERT","IMAGE VARIATIONS","349","CJ Abrams","Washington Nationals",0,0,""],["INSERT","IMAGE VARIATIONS","350","Freddie Freeman","Los Angeles Dodgers",0,0,""],["INSERT","IMAGE VARIATIONS","358","Masyn Winn","St. Louis Cardinals",0,0,""],["INSERT","IMAGE VARIATIONS","371","Yoshinobu Yamamoto","Los Angeles Dodgers",0,0,""],["INSERT","IMAGE VARIATIONS","380","Junior Caminero","Tampa Bay Rays",0,0,""],["INSERT","IMAGE VARIATIONS","383","Corbin Carroll","Arizona Diamondbacks",0,0,""],["INSERT","IMAGE VARIATIONS","396","Cade Horton","Chicago Cubs",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","13","Agustín Ramírez","Miami Marlins",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","25","Yordan Alvarez","Houston Astros",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","39","Roki Sasaki","Los Angeles Dodgers",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","53","Hunter Greene","Cincinnati Reds",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","65","Mason Miller","San Diego Padres",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","98","Jacob DeGrom","Texas Rangers",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","108","George Springer","Toronto Blue Jays",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","116","Luke Keaschall","Minnesota Twins",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","130","Max Fried","New York Yankees",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","152","Riley Greene","Detroit Tigers",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","153","Brady House","Washington Nationals",1,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","161","Carson Williams","Tampa Bay Rays",1,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","171","Jung Hoo Lee","San Francisco Giants",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","183","Trea Turner","Philadelphia Phillies",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","209","Drake Baldwin","Atlanta Braves",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","218","Jackson Holliday","Baltimore Orioles",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","269","Cal Raleigh","Seattle Mariners",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","291","Freddy Peralta","Milwaukee Brewers",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","308","Oneil Cruz","Pittsburgh Pirates",0,0,""],["INSERT","ALTERNATE BANNER VARIATIONS","396","Cade Horton","Chicago Cubs",0,0,""],["INSERT","NICKNAME VARIATIONS","86","Roman Anthony","Boston Red Sox",1,0,""],["INSERT","NICKNAME VARIATIONS","129","Josh Naylor","Seattle Mariners",0,0,""],["INSERT","NICKNAME VARIATIONS","136","Jac Caglianone","Kansas City Royals",1,0,""],["INSERT","NICKNAME VARIATIONS","137","Jonah Tong","New York Mets",1,0,""],["INSERT","NICKNAME VARIATIONS","159","Kyle Schwarber","Philadelphia Phillies",0,0,""],["INSERT","NICKNAME VARIATIONS","160","Bobby Witt Jr.","Kansas City Royals",0,0,""],["INSERT","NICKNAME VARIATIONS","168","Jesús Luzardo","Philadelphia Phillies",0,0,""],["INSERT","NICKNAME VARIATIONS","261","Pete Crow-Armstrong","Chicago Cubs",0,0,""],["INSERT","NICKNAME VARIATIONS","269","Cal Raleigh","Seattle Mariners",0,0,""],["INSERT","NICKNAME VARIATIONS","380","Junior Caminero","Tampa Bay Rays",0,0,""],["INSERT","THROWBACK JERSEYS VARIATION","20","Jonathan Aranda","Tampa Bay Rays",0,0,""],["INSERT","THROWBACK JERSEYS VARIATION","58","Chandler Simpson","Tampa Bay Rays",0,0,""],["INSERT","THROWBACK JERSEYS VARIATION","72","Bryce Harper","Philadelphia Phillies",0,0,""],["INSERT","THROWBACK JERSEYS VARIATION","117","Nolan Schanuel","Angels",0,0,""],["INSERT","THROWBACK JERSEYS VARIATION","159","Kyle Schwarber","Philadelphia Phillies",0,0,""],["INSERT","THROWBACK JERSEYS VARIATION","163","Mike Trout","Angels",0,0,""],["INSERT","THROWBACK JERSEYS VARIATION","168","Jesús Luzardo","Philadelphia Phillies",0,0,""],["INSERT","THROWBACK JERSEYS VARIATION","183","Trea Turner","Philadelphia Phillies",0,0,""],["INSERT","THROWBACK JERSEYS VARIATION","188","Zach Neto","Angels",0,0,""],["INSERT","THROWBACK JERSEYS VARIATION","380","Junior Caminero","Tampa Bay Rays",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","13","Agustín Ramírez","Miami Marlins",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","28","Nico Hoerner","Chicago Cubs",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","29","Eugenio Suárez","Seattle Mariners",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","31","Andrew Abbott","Cincinnati Reds",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","36","Edwin Díaz","Los Angeles Dodgers",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","59","Harry Ford","Seattle Mariners",1,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","60","Brooks Lee","Minnesota Twins",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","73","Dillon Dingler","Detroit Tigers",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","81","Alec Bohm","Philadelphia Phillies",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","82","Logan Webb","San Francisco Giants",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","91","Chase Dollander","Colorado Rockies",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","98","Jacob DeGrom","Texas Rangers",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","100","Noelvi Marte","Cincinnati Reds",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","103","Brent Rooker","Athletics",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","112","Jhostynxon Garcia","Boston Red Sox",1,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","124","Daylen Lile","Washington Nationals",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","133","Kyle Manzardo","Cleveland Guardians",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","139","Steven Kwan","Cleveland Guardians",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","154","Carlos Correa","Houston Astros",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","170","Hunter Brown","Houston Astros",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","172","Jordan Lawlar","Arizona Diamondbacks",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","173","Bryan Reynolds","Pittsburgh Pirates",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","174","Robert Suarez","San Diego Padres",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","178","Emmet Sheehan","Los Angeles Dodgers",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","180","Adley Rutschman","Baltimore Orioles",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","194","Matt Olson","Atlanta Braves",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","196","Jazz Chisholm Jr.","New York Yankees",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","210","Shane Bieber","Toronto Blue Jays",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","241","Seiya Suzuki","Chicago Cubs",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","258","Taylor Ward","Baltimore Orioles",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","301","Josh Smith","Texas Rangers",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","310","Bryce Eldridge","San Francisco Giants",1,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","314","Carlos Estévez","Kansas City Royals",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","318","Victor Scott II","St. Louis Cardinals",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","320","Salvador Perez","Kansas City Royals",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","323","Heriberto Hernández","Miami Marlins",1,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","325","Brice Turang","Milwaukee Brewers",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","339","Lenyn Sosa","Chicago White Sox",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","359","Aroldis Chapman","Boston Red Sox",0,0,""],["INSERT","BLACK AND WHITE IMAGE VARIATION","369","Brandon Lowe","Tampa Bay Rays",0,0,""],["INSERT","READY AND ACTION","RA-AJ","Aaron Judge","New York Yankees",0,0,""],["INSERT","READY AND ACTION","RA-BC","Bubba Chandler","Pittsburgh Pirates",1,0,""],["INSERT","READY AND ACTION","RA-BH","Bryce Harper","Philadelphia Phillies",0,0,""],["INSERT","READY AND ACTION","RA-BW","Bobby Witt Jr.","Kansas City Royals",0,0,""],["INSERT","READY AND ACTION","RA-CY","Carl Yastrzemski","Boston Red Sox",0,0,""],["INSERT","READY AND ACTION","RA-DP","Dave Parker","Pittsburgh Pirates",0,0,""],["INSERT","READY AND ACTION","RA-ED","Elly De La Cruz","Cincinnati Reds",0,0,""],["INSERT","READY AND ACTION","RA-FL","Francisco Lindor","New York Mets",0,0,""],["INSERT","READY AND ACTION","RA-GB","George Brett","Kansas City Royals",0,0,""],["INSERT","READY AND ACTION","RA-GF","George Foster","Cincinnati Reds",0,0,""],["INSERT","READY AND ACTION","RA-GH","Gunnar Henderson","Baltimore Orioles",0,0,""],["INSERT","READY AND ACTION","RA-JB","Johnny Bench","Cincinnati Reds",0,0,""],["INSERT","READY AND ACTION","RA-KT","Kyle Teel","Chicago White Sox",1,0,""],["INSERT","READY AND ACTION","RA-MM","Manny Machado","San Diego Padres",0,0,""],["INSERT","READY AND ACTION","RA-MS","Mike Schmidt","Philadelphia Phillies",0,0,""],["INSERT","READY AND ACTION","RA-MT","Mike Trout","Angels",0,0,""],["INSERT","READY AND ACTION","RA-NM","Nolan McLean","New York Mets",1,0,""],["INSERT","READY AND ACTION","RA-NR","Nolan Ryan","California Angels",0,0,""],["INSERT","READY AND ACTION","RA-OC","Owen Caissie","Chicago Cubs",1,0,""],["INSERT","READY AND ACTION","RA-PC","Pete Crow-Armstrong","Chicago Cubs",0,0,""],["INSERT","READY AND ACTION","RA-RC","Rod Carew","Minnesota Twins",0,0,""],["INSERT","READY AND ACTION","RA-RJ","Reggie Jackson","New York Yankees",0,0,""],["INSERT","READY AND ACTION","RA-SB","Samuel Basallo","Baltimore Orioles",1,0,""],["INSERT","READY AND ACTION","RA-SO","Shohei Ohtani","Los Angeles Dodgers",0,0,""],["INSERT","READY AND ACTION","RA-WM","Willie McCovey","San Francisco Giants",0,0,""],["INSERT","THE ENTERPRISE","TE-BB","Bo Bichette","Toronto Blue Jays",0,0,""],["INSERT","THE ENTERPRISE","TE-BBU","Byron Buxton","Minnesota Twins",0,0,""],["INSERT","THE ENTERPRISE","TE-BH","Brady House","Washington Nationals",1,0,""],["INSERT","THE ENTERPRISE","TE-CB","Chase Burns","Cincinnati Reds",1,0,""],["INSERT","THE ENTERPRISE","TE-CK","C.J. Kayfus","Cleveland Guardians",1,0,""],["INSERT","THE ENTERPRISE","TE-CM","Colson Montgomery","Chicago White Sox",1,0,""],["INSERT","THE ENTERPRISE","TE-CMO","Christian Moore","Angels",1,0,""],["INSERT","THE ENTERPRISE","TE-EP","Eury Pérez","Miami Marlins",0,0,""],["INSERT","THE ENTERPRISE","TE-ET","Ezequiel Tovar","Colorado Rockies",0,0,""],["INSERT","THE ENTERPRISE","TE-FL","Francisco Lindor","New York Mets",0,0,""],["INSERT","THE ENTERPRISE","TE-JC","Junior Caminero","Tampa Bay Rays",0,0,""],["INSERT","THE ENTERPRISE","TE-JCA","Jac Caglianone","Kansas City Royals",1,0,""],["INSERT","THE ENTERPRISE","TE-JCJ","Jazz Chisholm Jr.","New York Yankees",0,0,""],["INSERT","THE ENTERPRISE","TE-JH","Jackson Holliday","Baltimore Orioles",0,0,""],["INSERT","THE ENTERPRISE","TE-JM","Jackson Merrill","San Diego Padres",0,0,""],["INSERT","THE ENTERPRISE","TE-JMI","Jacob Misiorowski","Milwaukee Brewers",1,0,""],["INSERT","THE ENTERPRISE","TE-JR","Julio Rodríguez","Seattle Mariners",0,0,""],["INSERT","THE ENTERPRISE","TE-JW","Jacob Wilson","Athletics",0,0,""],["INSERT","THE ENTERPRISE","TE-KM","Ketel Marte","Arizona Diamondbacks",0,0,""],["INSERT","THE ENTERPRISE","TE-MB","Mookie Betts","Los Angeles Dodgers",0,0,""],["INSERT","THE ENTERPRISE","TE-MC","Matt Chapman","San Francisco Giants",0,0,""],["INSERT","THE ENTERPRISE","TE-MW","Masyn Winn","St. Louis Cardinals",0,0,""],["INSERT","THE ENTERPRISE","TE-PC","Pete Crow-Armstrong","Chicago Cubs",0,0,""],["INSERT","THE ENTERPRISE","TE-PS","Paul Skenes","Pittsburgh Pirates",0,0,""],["INSERT","THE ENTERPRISE","TE-RA","Roman Anthony","Boston Red Sox",1,0,""],["INSERT","THE ENTERPRISE","TE-RAJ","Ronald Acuña Jr.","Atlanta Braves",0,0,""],["INSERT","THE ENTERPRISE","TE-RG","Riley Greene","Detroit Tigers",0,0,""],["INSERT","THE ENTERPRISE","TE-TT","Trea Turner","Philadelphia Phillies",0,0,""],["INSERT","THE ENTERPRISE","TE-WL","Wyatt Langford","Texas Rangers",0,0,""],["INSERT","THE ENTERPRISE","TE-YA","Yordan Alvarez","Houston Astros",0,0,""],["INSERT","RAW POWER","RP-AJ","Aaron Judge","New York Yankees",0,0,""],["INSERT","RAW POWER","RP-CR","Cal Raleigh","Seattle Mariners",0,0,""],["INSERT","RAW POWER","RP-JC","Jac Caglianone","Kansas City Royals",1,0,""],["INSERT","RAW POWER","RP-JCA","Junior Caminero","Tampa Bay Rays",0,0,""],["INSERT","RAW POWER","RP-JW","James Wood","Washington Nationals",0,0,""],["INSERT","RAW POWER","RP-KS","Kyle Schwarber","Philadelphia Phillies",0,0,""],["INSERT","RAW POWER","RP-NK","Nick Kurtz","Athletics",0,0,""],["INSERT","RAW POWER","RP-PA","Pete Alonso","New York Mets",0,0,""],["INSERT","RAW POWER","RP-RA","Roman Anthony","Boston Red Sox",1,0,""],["INSERT","RAW POWER","RP-SO","Shohei Ohtani","Los Angeles Dodgers",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","77RO-AD","Andre Dawson","Montréal Expos",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","77RO-DM","Dale Murphy","Atlanta Braves",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","77RO-FL","Fred Lynn","Boston Red Sox",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","77RO-GB","George Brett","Kansas City Royals",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","77RO-GF","George Foster","Cincinnati Reds",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","77RO-JB","Johnny Bench","Cincinnati Reds",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","77RO-JP","Jim Palmer","Baltimore Orioles",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","77RO-JR","Jim Rice","Boston Red Sox",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","77RO-MS","Mike Schmidt","Philadelphia Phillies",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","77RO-RF","Rollie Fingers","Oakland Athletics",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","77RO-RJ","Reggie Jackson","New York Yankees",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","77RO-SC","Steve Carlton","Philadelphia Phillies",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","77RO-WR","Willie Randolph","New York Yankees",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-AB","Addison Barger","Toronto Blue Jays",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-AF","Alex Freeland","Los Angeles Dodgers",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-AJ","Aaron Judge","New York Yankees",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-AMC","Andrew McCutchen","Pittsburgh Pirates",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-AR","Agustín Ramírez","Miami Marlins",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-AV","Anthony Volpe","New York Yankees",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-BB","Bert Blyleven","Texas Rangers",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-BBU","Byron Buxton","Minnesota Twins",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-BC","Bubba Chandler","Pittsburgh Pirates",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-BD","Brendan Donovan","St. Louis Cardinals",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-BE","Bryce Eldridge","San Francisco Giants",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-BM","Brice Matthews","Houston Astros",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-BR","Ben Rice","New York Yankees",0,0,"Base unnumbered autos are all red ink"],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-BRO","Brent Rooker","Athletics",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-BST","Bryson Stott","Philadelphia Phillies",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-BT","Brice Turang","Milwaukee Brewers",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-CBU","Chase Burns","Cincinnati Reds",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-CE","Connelly Early","Boston Red Sox",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-CF","Carlton Fisk","Boston Red Sox",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-CJ","Carter Jensen","Kansas City Royals",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-CJK","C.J. Kayfus","Cleveland Guardians",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-CME","Chase Meidroth","Chicago White Sox",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-CMO","Christian Moore","Angels",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-CMON","Colson Montgomery","Chicago White Sox",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-CS","Chandler Simpson","Tampa Bay Rays",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-CSC","Cam Schlittler","New York Yankees",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-CT","Colby Thomas","Athletics",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-CW","Carson Williams","Tampa Bay Rays",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-CWH","Carson Whisenhunt","San Francisco Giants",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-DBA","Drake Baldwin","Atlanta Braves",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-DE","Dennis Eckersley","Cleveland",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-DF","Didier Fuentes","Atlanta Braves",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-DG","Drew Gilbert","San Francisco Giants",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-DW","Dave Winfield","San Diego Padres",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-EQ","Edgar Quero","Chicago White Sox",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-FJ","Fergie Jenkins","Boston Red Sox",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-FTJ","Fernando Tatis Jr.","San Diego Padres",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-GC","Garrett Crochet","Boston Red Sox",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-GH","Gunnar Henderson","Baltimore Orioles",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-GT","Grant Taylor","Chicago White Sox",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-GV","George Valera","Cleveland Guardians",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-HF","Harry Ford","Seattle Mariners",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-HH","Heriberto Hernández","Miami Marlins",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-HK","Hyeseong Kim","Los Angeles Dodgers",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-IS","Ian Seymour","Tampa Bay Rays",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JA","Jose Altuve","Houston Astros",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JCA","Junior Caminero","Tampa Bay Rays",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JCAG","Jac Caglianone","Kansas City Royals",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JCJ","Jazz Chisholm Jr.","New York Yankees",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JH","Jackson Holliday","Baltimore Orioles",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JHG","Jhostynxon Garcia","Boston Red Sox",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JK","Jim Kaat","Philadelphia Phillies",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JM","Jacob Misiorowski","Milwaukee Brewers",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JMA","Jakob Marsee","Miami Marlins",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JME","Jacob Melton","Houston Astros",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JP","Jack Perkins","Athletics",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JTO","Jonah Tong","New York Mets",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JTR","J.T. Realmuto","Philadelphia Phillies",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-JWI","Jacob Wilson","Athletics",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-KC","Kerry Carpenter","Detroit Tigers",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-KCA","Kristian Campbell","Boston Red Sox",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-KGS","Ken Griffey","Cincinnati Reds",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-KK","Kyle Karros","Colorado Rockies",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-KT","Kyle Teel","Chicago White Sox",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-LP","Lou Piniella","New York Yankees",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-MA","Maximo Acosta","Miami Marlins",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-MH","Michael Harris II","Atlanta Braves",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-MM","Mason Miller","San Diego Padres",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-MSH","Matt Shaw","Chicago Cubs",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-MT","Mike Trout","Angels",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-NH","Nico Hoerner","Chicago Cubs",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-NK","Nick Kurtz","Athletics",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-NM","Noelvi Marte","Cincinnati Reds",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-NMC","Nolan McLean","New York Mets",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-OC","Owen Caissie","Chicago Cubs",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-OK","Otto Kemp","Philadelphia Phillies",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-PS","Paul Skenes","Pittsburgh Pirates",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-PT","Payton Tolle","Boston Red Sox",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-RAN","Roman Anthony","Boston Red Sox",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-RC","Rod Carew","Minnesota Twins",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-RE","Rawly Eastwick","Cincinnati Reds",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-RG","Ron Guidry","New York Yankees",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-RGO","Rich Gossage","Chicago White Sox",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-RH","Robert Hassell III","Washington Nationals",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-RL","Royce Lewis","Minnesota Twins",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-RR","Ryan Ritter","Colorado Rockies",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-RS","Roki Sasaki","Los Angeles Dodgers",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-RY","Robin Yount","Milwaukee Brewers",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-SBA","Samuel Basallo","Baltimore Orioles",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-SF","Sal Frelick","Milwaukee Brewers",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-SG","Steve Garvey","Los Angeles Dodgers",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-SK","Steven Kwan","Cleveland Guardians",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-SO","Shohei Ohtani","Los Angeles Dodgers",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-SST","Sal Stewart","Cincinnati Reds",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-TJ","Troy Johnston","Miami Marlins",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-TP","Tony Perez","Cincinnati Reds",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-VGJ","Vladimir Guerrero Jr.","Toronto Blue Jays",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-WB","Warming Bernabel","Colorado Rockies",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-WS","Will Smith","Los Angeles Dodgers",0,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-YF","Yanquiel Fernández","Colorado Rockies",1,0,""],["AUTOGRAPH","REAL ONE AUTOGRAPHS","ROA-YY","Yoshinobu Yamamoto","Los Angeles Dodgers",0,0,""],["AUTOGRAPH","REAL ONE DUAL AUTOGRAPHS","RODA-BC","Jac Caglianone","Kansas City Royals",1,0,""],["AUTOGRAPH","REAL ONE DUAL AUTOGRAPHS","RODA-BC","George Brett","Kansas City Royals",1,0,""],["AUTOGRAPH","REAL ONE DUAL AUTOGRAPHS","RODA-CF","George Foster","Cincinnati Reds",0,0,""],["AUTOGRAPH","REAL ONE DUAL AUTOGRAPHS","RODA-CF","Rod Carew","Minnesota Twins",0,0,""],["AUTOGRAPH","REAL ONE DUAL AUTOGRAPHS","RODA-LA","Roman Anthony","Boston Red Sox",1,0,""],["AUTOGRAPH","REAL ONE DUAL AUTOGRAPHS","RODA-LA","Fred Lynn","Boston Red Sox",1,0,""],["AUTOGRAPH","REAL ONE DUAL AUTOGRAPHS","RODA-RS","Paul Skenes","Pittsburgh Pirates",0,0,""],["AUTOGRAPH","REAL ONE DUAL AUTOGRAPHS","RODA-RS","Nolan Ryan","California Angels",0,0,""],["AUTOGRAPH","REAL ONE QUAD AUTOGRAPHS","ROQA-BWCW","Jac Caglianone","Kansas City Royals",1,0,""],["AUTOGRAPH","REAL ONE QUAD AUTOGRAPHS","ROQA-BWCW","Frank White","Kansas City Royals",1,0,""],["AUTOGRAPH","REAL ONE QUAD AUTOGRAPHS","ROQA-BWCW","George Brett","Kansas City Royals",1,0,""],["AUTOGRAPH","REAL ONE QUAD AUTOGRAPHS","ROQA-BWCW","Bobby Witt Jr.","Kansas City Royals",1,0,""],["AUTOGRAPH","REAL ONE QUAD AUTOGRAPHS","ROQA-FYRL","Fred Lynn","Boston Red Sox",0,0,""],["AUTOGRAPH","REAL ONE QUAD AUTOGRAPHS","ROQA-FYRL","Jim Rice","Boston Red Sox",0,0,""],["AUTOGRAPH","REAL ONE QUAD AUTOGRAPHS","ROQA-FYRL","Carl Yastrzemski","Boston Red Sox",0,0,""],["AUTOGRAPH","REAL ONE QUAD AUTOGRAPHS","ROQA-FYRL","Carlton Fisk","Boston Red Sox",0,0,""],["AUTOGRAPH","REAL ONE QUAD AUTOGRAPHS","ROQA-YYCM","Jacob Misiorowski","Milwaukee Brewers",1,0,""],["AUTOGRAPH","REAL ONE QUAD AUTOGRAPHS","ROQA-YYCM","Jackson Chourio","Milwaukee Brewers",1,0,""],["AUTOGRAPH","REAL ONE QUAD AUTOGRAPHS","ROQA-YYCM","Christian Yelich","Milwaukee Brewers",1,0,""],["AUTOGRAPH","REAL ONE QUAD AUTOGRAPHS","ROQA-YYCM","Robin Yount","Milwaukee Brewers",1,0,""],["AUTOGRAPH","EXPANSION AUTOGRAPHS","EA-AW","Al Woods","Toronto Blue Jays",0,0,""],["AUTOGRAPH","EXPANSION AUTOGRAPHS","EA-DL","Dave Lemanczyk","Toronto Blue Jays",0,0,""],["AUTOGRAPH","EXPANSION AUTOGRAPHS","EA-DR","Doug Rader","Toronto Blue Jays",0,0,""],["AUTOGRAPH","EXPANSION AUTOGRAPHS","EA-GA","Glenn Abbott","Seattle Mariners",0,0,""],["AUTOGRAPH","EXPANSION AUTOGRAPHS","EA-GW","Gary Wheelock","Seattle Mariners",0,0,""],["AUTOGRAPH","EXPANSION AUTOGRAPHS","EA-OV","Otto Vélez","Toronto Blue Jays",0,0,""],["AUTOGRAPH","EXPANSION AUTOGRAPHS","EA-RH","Roy Howell","Toronto Blue Jays",0,0,""],["AUTOGRAPH","EXPANSION AUTOGRAPHS","EA-SB","Steve Braun","Seattle Mariners",0,0,""],["AUTOGRAPH","TURN BACK THE CLOCK AUTOGRAPHS","TBA-AP","Albert Pujols","St. Louis Cardinals",0,0,""],["AUTOGRAPH","TURN BACK THE CLOCK AUTOGRAPHS","TBA-BB","Barry Bonds","San Francisco Giants",0,0,""],["AUTOGRAPH","TURN BACK THE CLOCK AUTOGRAPHS","TBA-DJ","Derek Jeter","New York Yankees",0,0,""],["AUTOGRAPH","TURN BACK THE CLOCK AUTOGRAPHS","TBA-FH","Félix Hernández","Seattle Mariners",0,0,""],["AUTOGRAPH","TURN BACK THE CLOCK AUTOGRAPHS","TBA-I","Ichiro","Seattle Mariners",0,0,""],["AUTOGRAPH","TURN BACK THE CLOCK AUTOGRAPHS","TBA-MP","Mike Piazza","San Diego Padres",0,0,""],["AUTOGRAPH","TURN BACK THE CLOCK AUTOGRAPHS","TBA-SO","Shohei Ohtani","Angels",0,0,""],["AUTOGRAPH","BASE CHROME AUTOGRAPH VARIATIONS","ROAC-BC","Bubba Chandler","Pittsburgh Pirates",1,0,""],["AUTOGRAPH","BASE CHROME AUTOGRAPH VARIATIONS","ROAC-BE","Bryce Eldridge","San Francisco Giants",1,0,""],["AUTOGRAPH","BASE CHROME AUTOGRAPH VARIATIONS","ROAC-CB","Chase Burns","Cincinnati Reds",1,0,""],["AUTOGRAPH","BASE CHROME AUTOGRAPH VARIATIONS","ROAC-CMO","Colson Montgomery","Chicago White Sox",1,0,""],["AUTOGRAPH","BASE CHROME AUTOGRAPH VARIATIONS","ROAC-FTJ","Fernando Tatis Jr.","San Diego Padres",0,0,""],["AUTOGRAPH","BASE CHROME AUTOGRAPH VARIATIONS","ROAC-JCA","Jac Caglianone","Kansas City Royals",1,0,""],["AUTOGRAPH","BASE CHROME AUTOGRAPH VARIATIONS","ROAC-JM","Jacob Misiorowski","Milwaukee Brewers",1,0,""],["AUTOGRAPH","BASE CHROME AUTOGRAPH VARIATIONS","ROAC-MT","Mike Trout","Angels",0,0,""],["AUTOGRAPH","BASE CHROME AUTOGRAPH VARIATIONS","ROAC-NK","Nick Kurtz","Athletics",0,0,""],["AUTOGRAPH","BASE CHROME AUTOGRAPH VARIATIONS","ROAC-NM","Nolan McLean","New York Mets",1,0,""],["AUTOGRAPH","BASE CHROME AUTOGRAPH VARIATIONS","ROAC-PS","Paul Skenes","Pittsburgh Pirates",0,0,""],["AUTOGRAPH","BASE CHROME AUTOGRAPH VARIATIONS","ROAC-RA","Roman Anthony","Boston Red Sox",1,0,""],["AUTOGRAPH","BASE CHROME AUTOGRAPH VARIATIONS","ROAC-SO","Shohei Ohtani","Los Angeles Dodgers",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-BB","Byron Buxton","Minnesota Twins",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-CH","Cade Horton","Chicago Cubs",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-CJA","CJ Abrams","Washington Nationals",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-CY","Christian Yelich","Milwaukee Brewers",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-FTJ","Fernando Tatis Jr.","San Diego Padres",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-GB","George Brett","Kansas City Royals",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-GH","Gunnar Henderson","Baltimore Orioles",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-JA","Jose Altuve","Houston Astros",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-JB","Johnny Bench","Cincinnati Reds",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-JCA","Jac Caglianone","Kansas City Royals",1,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-JCJ","Jazz Chisholm Jr.","New York Yankees",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-JW","Jacob Wilson","Athletics",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-KTE","Kyle Teel","Chicago White Sox",1,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-MS","Mike Schmidt","Philadelphia Phillies",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-MT","Mike Trout","Angels",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-NA","Nolan Arenado","St. Louis Cardinals",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-PS","Paul Skenes","Pittsburgh Pirates",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-RC","Rod Carew","Minnesota Twins",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-RJ","Reggie Jackson","New York Yankees",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-RS","Roki Sasaki","Los Angeles Dodgers",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-SC","Steve Carlton","Philadelphia Phillies",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-TT","Trea Turner","Philadelphia Phillies",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION AUTOGRAPH RELICS","CCAR-VGJ","Vladimir Guerrero Jr.","Toronto Blue Jays",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION DUAL AUTOGRAPH RELICS","CCDR-JJ","Aaron Judge","New York Yankees",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION DUAL AUTOGRAPH RELICS","CCDR-JJ","Reggie Jackson","New York Yankees",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION DUAL AUTOGRAPH RELICS","CCDR-YC","Jackson Chourio","Milwaukee Brewers",0,0,""],["AUTOGRAPH RELIC","CLUBHOUSE COLLECTION DUAL AUTOGRAPH RELICS","CCDR-YC","Robin Yount","Milwaukee Brewers",0,0,""],["AUTOGRAPH RELIC","FLASHBACKS AUTOGRAPHED RELICS","FAR-CY","Carl Yastrzemski","Boston Red Sox",0,0,""],["AUTOGRAPH RELIC","FLASHBACKS AUTOGRAPHED RELICS","FAR-GB","George Brett","Kansas City Royals",0,0,""],["AUTOGRAPH RELIC","FLASHBACKS AUTOGRAPHED RELICS","FAR-MS","Mike Schmidt","Philadelphia Phillies",0,0,""],["AUTOGRAPH RELIC","FLASHBACKS AUTOGRAPHED RELICS","FAR-RJ","Reggie Jackson","New York Yankees",0,0,""],["AUTOGRAPH RELIC","FLASHBACKS AUTOGRAPHED RELICS","FAR-RY","Robin Yount","Milwaukee Brewers",0,0,""],["AUTOGRAPH RELIC","FLASHBACKS AUTOGRAPHED RELICS","FAR-SC","Steve Carlton","Philadelphia Phillies",0,0,""],["AUTOGRAPH RELIC","THERE ONCE WAS A MAN AUTOGRAPHED RELICS","TMA-CF","Carlton Fisk","Boston Red Sox",0,0,""],["AUTOGRAPH RELIC","THERE ONCE WAS A MAN AUTOGRAPHED RELICS","TMA-GB","George Brett","Kansas City Royals",0,0,""],["AUTOGRAPH RELIC","THERE ONCE WAS A MAN AUTOGRAPHED RELICS","TMA-MS","Mike Schmidt","Philadelphia Phillies",0,0,""],["AUTOGRAPH RELIC","THERE ONCE WAS A MAN AUTOGRAPHED RELICS","TMA-RJ","Reggie Jackson","Oakland Athletics",0,0,""],["AUTOGRAPH RELIC","THERE ONCE WAS A MAN AUTOGRAPHED RELICS","TMA-RY","Robin Yount","Milwaukee Brewers",0,0,""],["AUTOGRAPH RELIC","THERE ONCE WAS A MAN AUTOGRAPHED RELICS","TMA-SC","Steve Carlton","Philadelphia Phillies",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-AA","Andrew Abbott","Cincinnati Reds",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-AB","Alex Bregman","Boston Red Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-AG","Adolis García","Texas Rangers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-AJ","Aaron Judge","New York Yankees",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-AM","Andrew McCutchen","Pittsburgh Pirates",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-AR","Agustín Ramírez","Miami Marlins",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-ARI","Austin Riley","Atlanta Braves",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-ARU","Adley Rutschman","Baltimore Orioles",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-BB","Bo Bichette","Toronto Blue Jays",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-BBU","Byron Buxton","Minnesota Twins",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-BH","Bryce Harper","Philadelphia Phillies",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-BL","Brooks Lee","Minnesota Twins",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-BLO","Brandon Lowe","Tampa Bay Rays",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-BN","Brandon Nimmo","New York Mets",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-BR","Ben Rice","New York Yankees",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-BW","Bryan Woo","Seattle Mariners",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-BWI","Bobby Witt Jr.","Kansas City Royals",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-CA","CJ Abrams","Washington Nationals",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-CB","Cody Bellinger","New York Yankees",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-CC","Carlos Correa","Houston Astros",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-CCA","Corbin Carroll","Arizona Diamondbacks",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-CH","Cade Horton","Chicago Cubs",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-CM","Colson Montgomery","Chicago White Sox",1,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-CR","Cal Raleigh","Seattle Mariners",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-CSE","Corey Seager","Texas Rangers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-CY","Christian Yelich","Milwaukee Brewers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-DB","Drake Baldwin","Atlanta Braves",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-DC","Dylan Crews","Washington Nationals",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-DCE","Dylan Cease","San Diego Padres",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-EP","Eury Pérez","Miami Marlins",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-ET","Ezequiel Tovar","Colorado Rockies",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-FF","Freddie Freeman","Los Angeles Dodgers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-FL","Francisco Lindor","New York Mets",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-FT","Fernando Tatis Jr.","San Diego Padres",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-GC","Garrett Crochet","Boston Red Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-GH","Gunnar Henderson","Baltimore Orioles",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-GS","George Springer","Toronto Blue Jays",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-HG","Hunter Goodman","Colorado Rockies",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JA","Jose Altuve","Houston Astros",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JB","Jordan Beck","Colorado Rockies",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JC","Junior Caminero","Tampa Bay Rays",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JCA","Jac Caglianone","Kansas City Royals",1,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JCH","Jackson Chourio","Milwaukee Brewers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JCJ","Jazz Chisholm Jr.","New York Yankees",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JD","Jarren Duran","Boston Red Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JH","Jackson Holliday","Baltimore Orioles",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JL","Jung Hoo Lee","San Francisco Giants",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JLA","Jordan Lawlar","Arizona Diamondbacks",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JM","Jeff McNeil","New York Mets",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JME","Jackson Merrill","San Diego Padres",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JP","Jeremy Peña","Houston Astros",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JR","Julio Rodríguez","Seattle Mariners",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JRA","José Ramírez","Cleveland Guardians",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JRE","J.T. Realmuto","Philadelphia Phillies",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JS","Juan Soto","New York Mets",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JW","James Wood","Washington Nationals",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-JWI","Jacob Wilson","Athletics",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-KM","Ketel Marte","Arizona Diamondbacks",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-KS","Kyle Schwarber","Philadelphia Phillies",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-LA","Luis Arraez","San Diego Padres",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-LB","Lawrence Butler","Athletics",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-LR","Luis Robert Jr.","Chicago White Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-MB","Mookie Betts","Los Angeles Dodgers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-MC","Matt Chapman","San Francisco Giants",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-MM","Manny Machado","San Diego Padres",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-MO","Matt Olson","Atlanta Braves",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-MS","Marcus Semien","Texas Rangers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-MSH","Matt Shaw","Chicago Cubs",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-MT","Mike Trout","Angels",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-MW","Masyn Winn","St. Louis Cardinals",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-NA","Nolan Arenado","St. Louis Cardinals",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-NC","Nick Castellanos","Philadelphia Phillies",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-NE","Nathan Eovaldi","Texas Rangers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-NK","Nick Kurtz","Athletics",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-OA","Ozzie Albies","Atlanta Braves",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-OC","Oneil Cruz","Pittsburgh Pirates",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-PA","Pete Alonso","New York Mets",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-PC","Pete Crow-Armstrong","Chicago Cubs",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-PG","Paul Goldschmidt","New York Yankees",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-PL","Pablo López","Minnesota Twins",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-PS","Paul Skenes","Pittsburgh Pirates",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-RA","Ronald Acuña Jr.","Atlanta Braves",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-RAR","Randy Arozarena","Seattle Mariners",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-RG","Riley Greene","Detroit Tigers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-RL","Royce Lewis","Minnesota Twins",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-SF","Sal Frelick","Milwaukee Brewers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-SP","Salvador Perez","Kansas City Royals",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-SS","Seiya Suzuki","Chicago Cubs",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-ST","Spencer Torkelson","Detroit Tigers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-TS","Tarik Skubal","Detroit Tigers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-TSO","Tyler Soderstrom","Athletics",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-TT","Trea Turner","Philadelphia Phillies",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-VG","Vladimir Guerrero Jr.","Toronto Blue Jays",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-WA","Willy Adames","San Francisco Giants",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-WC","William Contreras","Milwaukee Brewers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-WS","Will Smith","Los Angeles Dodgers",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-YA","Yordan Alvarez","Houston Astros",0,0,""],["RELIC","CLUBHOUSE COLLECTION RELICS","CCR-ZN","Zach Neto","Angels",0,0,""],["RELIC","REAL ONE RELICS","ROR-AJ","Aaron Judge","New York Yankees",0,0,""],["RELIC","REAL ONE RELICS","ROR-AM","Andrew McCutchen","Pittsburgh Pirates",0,0,""],["RELIC","REAL ONE RELICS","ROR-BB","Bo Bichette","Toronto Blue Jays",0,0,""],["RELIC","REAL ONE RELICS","ROR-BBU","Byron Buxton","Minnesota Twins",0,0,""],["RELIC","REAL ONE RELICS","ROR-BH","Bryce Harper","Philadelphia Phillies",0,0,""],["RELIC","REAL ONE RELICS","ROR-BS","Bryson Stott","Philadelphia Phillies",0,0,""],["RELIC","REAL ONE RELICS","ROR-BW","Bobby Witt Jr.","Kansas City Royals",0,0,""],["RELIC","REAL ONE RELICS","ROR-CC","Corbin Carroll","Arizona Diamondbacks",0,0,""],["RELIC","REAL ONE RELICS","ROR-CK","Clayton Kershaw","Los Angeles Dodgers",0,0,""],["RELIC","REAL ONE RELICS","ROR-CR","Cal Raleigh","Seattle Mariners",0,0,""],["RELIC","REAL ONE RELICS","ROR-CS","Chris Sale","Atlanta Braves",0,0,""],["RELIC","REAL ONE RELICS","ROR-DB","Drake Baldwin","Atlanta Braves",0,0,""],["RELIC","REAL ONE RELICS","ROR-FL","Francisco Lindor","New York Mets",0,0,""],["RELIC","REAL ONE RELICS","ROR-FT","Fernando Tatis Jr.","San Diego Padres",0,0,""],["RELIC","REAL ONE RELICS","ROR-GC","Garrett Crochet","Boston Red Sox",0,0,""],["RELIC","REAL ONE RELICS","ROR-HG","Hunter Greene","Cincinnati Reds",0,0,""],["RELIC","REAL ONE RELICS","ROR-IH","Ian Happ","Chicago Cubs",0,0,""],["RELIC","REAL ONE RELICS","ROR-JA","Jose Altuve","Houston Astros",0,0,""],["RELIC","REAL ONE RELICS","ROR-JC","Junior Caminero","Tampa Bay Rays",0,0,""],["RELIC","REAL ONE RELICS","ROR-JCH","Jackson Chourio","Milwaukee Brewers",0,0,""],["RELIC","REAL ONE RELICS","ROR-JCJ","Jazz Chisholm Jr.","New York Yankees",0,0,""],["RELIC","REAL ONE RELICS","ROR-JH","Jackson Holliday","Baltimore Orioles",0,0,""],["RELIC","REAL ONE RELICS","ROR-JM","Jackson Merrill","San Diego Padres",0,0,""],["RELIC","REAL ONE RELICS","ROR-JR","José Ramírez","Cleveland Guardians",0,0,""],["RELIC","REAL ONE RELICS","ROR-JRO","Julio Rodríguez","Seattle Mariners",0,0,""],["RELIC","REAL ONE RELICS","ROR-JS","Juan Soto","New York Mets",0,0,""],["RELIC","REAL ONE RELICS","ROR-JW","James Wood","Washington Nationals",0,0,""],["RELIC","REAL ONE RELICS","ROR-JWI","Jacob Wilson","Athletics",0,0,""],["RELIC","REAL ONE RELICS","ROR-KM","Ketel Marte","Arizona Diamondbacks",0,0,""],["RELIC","REAL ONE RELICS","ROR-LA","Luis Arraez","San Diego Padres",0,0,""],["RELIC","REAL ONE RELICS","ROR-LK","Luke Keaschall","Minnesota Twins",0,0,""],["RELIC","REAL ONE RELICS","ROR-MB","Mookie Betts","Los Angeles Dodgers",0,0,""],["RELIC","REAL ONE RELICS","ROR-MF","Max Fried","New York Yankees",0,0,""],["RELIC","REAL ONE RELICS","ROR-MO","Matt Olson","Atlanta Braves",0,0,""],["RELIC","REAL ONE RELICS","ROR-MS","Matt Shaw","Chicago Cubs",0,0,""],["RELIC","REAL ONE RELICS","ROR-MT","Mike Trout","Angels",0,0,""],["RELIC","REAL ONE RELICS","ROR-MW","Masyn Winn","St. Louis Cardinals",0,0,""],["RELIC","REAL ONE RELICS","ROR-NA","Nolan Arenado","St. Louis Cardinals",0,0,""],["RELIC","REAL ONE RELICS","ROR-OA","Ozzie Albies","Atlanta Braves",0,0,""],["RELIC","REAL ONE RELICS","ROR-OC","Oneil Cruz","Pittsburgh Pirates",0,0,""],["RELIC","REAL ONE RELICS","ROR-PA","Pete Alonso","New York Mets",0,0,""],["RELIC","REAL ONE RELICS","ROR-PC","Pete Crow-Armstrong","Chicago Cubs",0,0,""],["RELIC","REAL ONE RELICS","ROR-RA","Ronald Acuña Jr.","Atlanta Braves",0,0,""],["RELIC","REAL ONE RELICS","ROR-RL","Royce Lewis","Minnesota Twins",0,0,""],["RELIC","REAL ONE RELICS","ROR-TS","Tarik Skubal","Detroit Tigers",0,0,""],["RELIC","REAL ONE RELICS","ROR-TT","Trea Turner","Philadelphia Phillies",0,0,""],["RELIC","REAL ONE RELICS","ROR-VG","Vladimir Guerrero Jr.","Toronto Blue Jays",0,0,""],["RELIC","REAL ONE RELICS","ROR-WS","Will Smith","Los Angeles Dodgers",0,0,""],["RELIC","REAL ONE RELICS","ROR-YY","Yoshinobu Yamamoto","Los Angeles Dodgers",0,0,""],["RELIC","REAL ONE RELICS","ROR-ZN","Zach Neto","Angels",0,0,""],["RELIC","FLASHBACK RELICS","FBR-AD","Andre Dawson","Montréal Expos",0,0,""],["RELIC","FLASHBACK RELICS","FBR-CY","Carl Yastrzemski","Boston Red Sox",0,0,""],["RELIC","FLASHBACK RELICS","FBR-DW","Dave Winfield","San Diego Padres",0,0,""],["RELIC","FLASHBACK RELICS","FBR-GB","George Brett","Kansas City Royals",0,0,""],["RELIC","FLASHBACK RELICS","FBR-GF","George Foster","Cincinnati Reds",0,0,""],["RELIC","FLASHBACK RELICS","FBR-JR","Jim Rice","Boston Red Sox",0,0,""],["RELIC","FLASHBACK RELICS","FBR-KG","Ken Griffey","Cincinnati Reds",0,0,""],["RELIC","FLASHBACK RELICS","FBR-KH","Keith Hernandez","St. Louis Cardinals",0,0,""],["RELIC","FLASHBACK RELICS","FBR-MS","Mike Schmidt","Philadelphia Phillies",0,0,""],["RELIC","FLASHBACK RELICS","FBR-RC","Rod Carew","Minnesota Twins",0,0,""],["RELIC","FLASHBACK RELICS","FBR-RJ","Reggie Jackson","New York Yankees",0,0,""],["RELIC","FLASHBACK RELICS","FBR-RY","Robin Yount","Milwaukee Brewers",0,0,""],["RELIC","FLASHBACK RELICS","FBR-SC","Steve Carlton","Philadelphia Phillies",0,0,""],["RELIC","FLASHBACK RELICS","FBR-SG","Steve Garvey","Los Angeles Dodgers",0,0,""],["RELIC","FLASHBACK RELICS","FBR-TP","Tony Perez","Montréal Expos",0,0,""],["RELIC","FLASHBACK RELICS","FBR-TS","Ted Simmons","St. Louis Cardinals",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-BW","George Brett","Kansas City Royals",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-BW","Bobby Witt Jr.","Kansas City Royals",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-CB","Rod Carew","Minnesota Twins",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-CB","Byron Buxton","Minnesota Twins",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-CW","Zack Wheeler","Philadelphia Phillies",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-CW","Steve Carlton","Philadelphia Phillies",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-DW","Andre Dawson","Montréal Expos",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-DW","James Wood","Washington Nationals",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-GS","Steve Garvey","Los Angeles Dodgers",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-GS","Will Smith","Los Angeles Dodgers",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-HA","Keith Hernandez","St. Louis Cardinals",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-HA","Nolan Arenado","St. Louis Cardinals",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-JJ","Aaron Judge","New York Yankees",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-JJ","Reggie Jackson","New York Yankees",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-LA","Roman Anthony","Boston Red Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-LA","Fred Lynn","Boston Red Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-MO","Dale Murphy","Atlanta Braves",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-MO","Matt Olson","Atlanta Braves",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-RR","Ceddanne Rafaela","Boston Red Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-RR","Jim Rice","Boston Red Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-SH","Mike Schmidt","Philadelphia Phillies",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-SH","Bryce Harper","Philadelphia Phillies",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-TA","Joe Torre","New York Mets",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-TA","Pete Alonso","New York Mets",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-WT","Dave Winfield","San Diego Padres",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-WT","Fernando Tatis Jr.","San Diego Padres",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-YB","Alex Bregman","Boston Red Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-YB","Carl Yastrzemski","Boston Red Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-YY","Robin Yount","Milwaukee Brewers",0,0,""],["RELIC","CLUBHOUSE COLLECTION DUAL PLAYER RELICS","CCDR-YY","Christian Yelich","Milwaukee Brewers",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-BWPC","George Brett","Kansas City Royals",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-BWPC","Salvador Perez","Kansas City Royals",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-BWPC","Jac Caglianone","Kansas City Royals",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-BWPC","Bobby Witt Jr.","Kansas City Royals",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-DWCH","Andre Dawson","Montréal Expos",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-DWCH","Dylan Crews","Washington Nationals",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-DWCH","James Wood","Washington Nationals",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-DWCH","Brady House","Washington Nationals",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-JJSB","Giancarlo Stanton","New York Yankees",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-JJSB","Cody Bellinger","New York Yankees",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-JJSB","Aaron Judge","New York Yankees",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-JJSB","Reggie Jackson","New York Yankees",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-RLAM","Marcelo Mayer","Boston Red Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-RLAM","Jim Rice","Boston Red Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-RLAM","Fred Lynn","Boston Red Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-RLAM","Roman Anthony","Boston Red Sox",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-SHCW","Bryce Harper","Philadelphia Phillies",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-SHCW","Mike Schmidt","Philadelphia Phillies",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-SHCW","Steve Carlton","Philadelphia Phillies",0,0,""],["RELIC","CLUBHOUSE COLLECTION QUAD PLAYER RELICS","CCQR-SHCW","Zack Wheeler","Philadelphia Phillies",0,0,""]];
+
+const TEAM_COLOR = {
+  "Angels":"#BA0021","California Angels":"#BA0021","Arizona Diamondbacks":"#A71930",
+  "Athletics":"#003831","Oakland Athletics":"#003831","Atlanta Braves":"#13274F",
+  "Baltimore Orioles":"#DF4601","Boston Red Sox":"#BD3039","Chicago Cubs":"#0E3386",
+  "Chicago White Sox":"#27251F","Cincinnati Reds":"#C6011F","Cleveland":"#00385D",
+  "Cleveland Guardians":"#00385D","Colorado Rockies":"#333366","Detroit Tigers":"#0C2340",
+  "Houston Astros":"#EB6E1F","Kansas City Royals":"#004687","Los Angeles Dodgers":"#005A9C",
+  "Miami Marlins":"#00A3E0","Milwaukee Brewers":"#12284B","Minnesota Twins":"#002B5C",
+  "Montréal Expos":"#003087","New York Mets":"#FF5910","New York Yankees":"#0C2340",
+  "Philadelphia Phillies":"#E81828","Pittsburgh Pirates":"#FDB827","San Diego Padres":"#2F241D",
+  "San Francisco Giants":"#FD5A1E","Seattle Mariners":"#0C2C56","St. Louis Cardinals":"#C41E3A",
+  "Tampa Bay Rays":"#092C5C","Texas Rangers":"#003278","Toronto Blue Jays":"#134A8E",
+  "Washington Nationals":"#AB0003"
+};
+const teamColor = t => TEAM_COLOR[t] || "#3d3a34";
+
+/* ---- build one entry per physical card ---- */
+const SLOTS = (() => {
+  const map = new Map();
+  for (const [cat, sub, num, player, team, rc, sp, note] of CARDS) {
+    const id = cat + "|" + sub + "|" + num;
+    let s = map.get(id);
+    if (!s) {
+      s = { id, cat, sub, num, n: /^\d+$/.test(num) ? +num : null,
+            players: [], teams: [], rc: 0, sp: 0, note: note || "" };
+      map.set(id, s);
+    }
+    if (player) s.players.push(player);
+    if (team && !s.teams.includes(team)) s.teams.push(team);
+    if (rc) s.rc = 1;
+    if (sp) s.sp = 1;
+    if (note && !s.note) s.note = note;
+  }
+  return [...map.values()];
+})();
+
+const label = s => s.players.length ? s.players.join(" / ") : s.teams[0];
+const teamOf = s => s.teams[0] || "";
+const TEAMS = [...new Set(SLOTS.map(teamOf).filter(Boolean))].sort();
+
+/* ---- binders ---- */
+const BINDERS = [
+  { id:"base",   name:"Base set — 1 to 400",        pick: s => s.cat === "BASE" },
+  { id:"master", name:"Master set — everything",    pick: () => true },
+  { id:"sp",     name:"Short print hunt",           pick: s => s.sp },
+  { id:"rc",     name:"Rookie cards",               pick: s => s.rc },
+  { id:"chrome", name:"Chrome variations",          pick: s => /CHROME/.test(s.sub) },
+  { id:"var",    name:"Variations — image, banner, nickname, throwback, B&W",
+                 pick: s => /VARIATION/.test(s.sub) && !/CHROME/.test(s.sub) },
+  { id:"ins",    name:"Inserts — Ready and Action, Enterprise, Raw Power",
+                 pick: s => ["READY AND ACTION","THE ENTERPRISE","RAW POWER"].includes(s.sub) },
+  { id:"auto",   name:"Autographs",                 pick: s => s.cat.startsWith("AUTOGRAPH") },
+  { id:"relic",  name:"Relics",                     pick: s => s.cat.endsWith("RELIC") || s.cat === "RELIC" },
+  ...TEAMS.map(t => ({ id:"tm:"+t, name:"Team binder — "+t, pick: s => teamOf(s) === t }))
+];
+
+/* ---- state ---- */
+const S = { binder:"base", cols:3, rows:3, sort:"num", sp:false, rc:false, need:false, leaf:0 };
+const twoUp = () => window.matchMedia("(min-width:901px)").matches;
+// two pages up, the front leaf pairs with page 1; one page up it would be a blank screen
+const startLeaf = () => twoUp() ? 0 : 1;
+let owned = new Set();
+
+const $ = id => document.getElementById(id);
+
+/* ---- persistence: this browser, on whatever host serves the file ---- */
+const KEY = "heritage-binder-owned-v1";
+const SEED = ["BASE|LEAGUE LEADERS|1","BASE|LEAGUE LEADERS|2","BASE|LEAGUE LEADERS|3","BASE|LEAGUE LEADERS|4","BASE|LEAGUE LEADERS|5","BASE|LEAGUE LEADERS|6","BASE|BASE CARDS|9","BASE|BASE CARDS|10","BASE|BASE CARDS|11","BASE|BASE CARDS|12","BASE|BASE CARDS|14","BASE|BASE CARDS|15","BASE|BASE CARDS|16","BASE|BASE CARDS|17","BASE|BASE CARDS|18","BASE|BASE CARDS|19","BASE|BASE CARDS|21","BASE|BASE CARDS|22","BASE|BASE CARDS|23","BASE|BASE CARDS|25","BASE|BASE CARDS|26","BASE|BASE CARDS|27","BASE|BASE CARDS|28","BASE|BASE CARDS|33","BASE|BASE CARDS|35","BASE|BASE CARDS|37","BASE|BASE CARDS|39","BASE|BASE CARDS|40","BASE|BASE CARDS|41","BASE|BASE CARDS|42","BASE|BASE CARDS|43","BASE|BASE CARDS|44","BASE|BASE CARDS|45","BASE|BASE CARDS|46","BASE|BASE CARDS|47","BASE|BASE CARDS|48","BASE|BASE CARDS|49","BASE|BASE CARDS|51","BASE|BASE CARDS|53","BASE|BASE CARDS|54","BASE|BASE CARDS|55","BASE|BASE CARDS|58","BASE|BASE CARDS|59","BASE|BASE CARDS|62","BASE|BASE CARDS|63","BASE|BASE CARDS|65","BASE|BASE CARDS|67","BASE|BASE CARDS|68","BASE|BASE CARDS|69","BASE|BASE CARDS|74","BASE|BASE CARDS|75","BASE|BASE CARDS|76","BASE|BASE CARDS|78","BASE|BASE CARDS|81","BASE|BASE CARDS|82","BASE|BASE CARDS|83","BASE|BASE CARDS|85","BASE|BASE CARDS|87","BASE|BASE CARDS|88","BASE|BASE CARDS|89","BASE|BASE CARDS|90","BASE|BASE CARDS|91","BASE|BASE CARDS|92","BASE|BASE CARDS|94","BASE|BASE CARDS|95","BASE|BASE CARDS|98","BASE|BASE CARDS|99","BASE|BASE CARDS|100","BASE|BASE CARDS|103","BASE|BASE CARDS|102","BASE|BASE CARDS|104","BASE|BASE CARDS|105","BASE|BASE CARDS|107","BASE|BASE CARDS|110","BASE|BASE CARDS|111","BASE|BASE CARDS|113","BASE|BASE CARDS|114","BASE|BASE CARDS|115","BASE|BASE CARDS|116","BASE|BASE CARDS|119","BASE|BASE CARDS|120","BASE|BASE CARDS|123","BASE|BASE CARDS|124","BASE|BASE CARDS|125","BASE|BASE CARDS|126","BASE|BASE CARDS|129","BASE|BASE CARDS|131","BASE|BASE CARDS|132","BASE|BASE CARDS|133","BASE|BASE CARDS|134","BASE|BASE CARDS|136","BASE|BASE CARDS|137","BASE|BASE CARDS|139","BASE|BASE CARDS|140","BASE|BASE CARDS|141","BASE|BASE CARDS|142","BASE|BASE CARDS|143","BASE|BASE CARDS|144","BASE|BASE CARDS|146","BASE|BASE CARDS|149","BASE|BASE CARDS|150","BASE|BASE CARDS|151","BASE|BASE CARDS|152","BASE|BASE CARDS|153","BASE|BASE CARDS|155","BASE|BASE CARDS|156","BASE|BASE CARDS|157","BASE|BASE CARDS|159","BASE|BASE CARDS|160","BASE|BASE CARDS|162","BASE|BASE CARDS|163","BASE|BASE CARDS|164","BASE|BASE CARDS|165","BASE|BASE CARDS|167","BASE|BASE CARDS|168","BASE|BASE CARDS|169","BASE|BASE CARDS|170","BASE|BASE CARDS|171","BASE|BASE CARDS|172","BASE|BASE CARDS|173","BASE|BASE CARDS|175","BASE|BASE CARDS|176","BASE|BASE CARDS|177","BASE|BASE CARDS|178","BASE|BASE CARDS|179","BASE|BASE CARDS|180","BASE|BASE CARDS|182","BASE|BASE CARDS|184","BASE|BASE CARDS|187","BASE|BASE CARDS|189","BASE|BASE CARDS|190","BASE|BASE CARDS|192","BASE|BASE CARDS|193","BASE|BASE CARDS|194","BASE|BASE CARDS|195","BASE|BASE CARDS|196","BASE|BASE CARDS|197","BASE|BASE CARDS|199","BASE|BASE CARDS|200","BASE|BASE CARDS|204","BASE|BASE CARDS|205","BASE|BASE CARDS|206","BASE|BASE CARDS|207","BASE|BASE CARDS|208","BASE|BASE CARDS|209","BASE|BASE CARDS|210","BASE|BASE CARDS|211","BASE|BASE CARDS|212","BASE|BASE CARDS|215","BASE|BASE CARDS|216","BASE|BASE CARDS|217","BASE|BASE CARDS|218","BASE|BASE CARDS|220","BASE|BASE CARDS|221","BASE|BASE CARDS|223","BASE|BASE CARDS|224","BASE|BASE CARDS|226","BASE|BASE CARDS|230","BASE|RECORD BREAKERS|232","BASE|RECORD BREAKERS|233","BASE|BASE CARDS|235","BASE|BASE CARDS|236","BASE|BASE CARDS|238","BASE|BASE CARDS|239","BASE|BASE CARDS|240","BASE|BASE CARDS|241","BASE|BASE CARDS|243","BASE|BASE CARDS|244","BASE|BASE CARDS|245","BASE|BASE CARDS|246","BASE|BASE CARDS|249","BASE|BASE CARDS|250","BASE|BASE CARDS|253","BASE|BASE CARDS|254","BASE|BASE CARDS|257","BASE|BASE CARDS|258","BASE|BASE CARDS|259","BASE|BASE CARDS|260","BASE|BASE CARDS|261","BASE|BASE CARDS|262","BASE|BASE CARDS|263","BASE|BASE CARDS|264","BASE|BASE CARDS|266","BASE|BASE CARDS|269","BASE|BASE CARDS|270","BASE|BASE CARDS|275","BASE|NL CHAMPIONS|277","BASE|BASE CARDS|278","BASE|BASE CARDS|280","BASE|BASE CARDS|281","BASE|BASE CARDS|282","BASE|BASE CARDS|283","BASE|BASE CARDS|284","BASE|BASE CARDS|285","BASE|BASE CARDS|286","BASE|BASE CARDS|290","BASE|BASE CARDS|291","BASE|BASE CARDS|292","BASE|BASE CARDS|293","BASE|BASE CARDS|294","BASE|BASE CARDS|295","BASE|BASE CARDS|296","BASE|BASE CARDS|297","BASE|BASE CARDS|298","BASE|BASE CARDS|299","BASE|BASE CARDS|302","BASE|BASE CARDS|306","BASE|BASE CARDS|307","BASE|BASE CARDS|309","BASE|BASE CARDS|310","BASE|WORLD SERIES HIGHLIGHTS|311","BASE|BASE CARDS|318","BASE|BASE CARDS|319","BASE|BASE CARDS|320","BASE|BASE CARDS|321","BASE|BASE CARDS|322","BASE|BASE CARDS|323","BASE|BASE CARDS|325","BASE|BASE CARDS|327","BASE|BASE CARDS|328","BASE|BASE CARDS|330","BASE|BASE CARDS|331","BASE|TURN BACK THE CLOCK|333","BASE|BASE CARDS|338","BASE|BASE CARDS|339","BASE|BASE CARDS|340","BASE|BASE CARDS|341","BASE|BASE CARDS|342","BASE|BASE CARDS|343","BASE|BASE CARDS|349","BASE|BASE CARDS|350","BASE|BASE CARDS|351","BASE|BASE CARDS|352","BASE|BASE CARDS|354","BASE|BASE CARDS|358","BASE|BASE CARDS|359","BASE|BASE CARDS|361","BASE|BASE CARDS|362","BASE|BASE CARDS|363","BASE|BASE CARDS|364","BASE|BASE CARDS|365","BASE|BASE CARDS|366","BASE|BASE CARDS|367","BASE|BASE CARDS|370","BASE|BASE CARDS|371","BASE|QUAD ROOKIES|373","BASE|QUAD ROOKIES|374","BASE|QUAD ROOKIES|376","BASE|QUAD ROOKIES|379","BASE|BASE CARDS|380","BASE|BASE CARDS|381","BASE|BASE CARDS|382","BASE|BASE CARDS|384","BASE|BASE CARDS|396","BASE|BASE CARDS|399"];
+let store = null, ls = null;
+try { if (window.storage && window.storage.get) store = window.storage; } catch (e) {}
+try { localStorage.setItem("__t", "1"); localStorage.removeItem("__t"); ls = localStorage; } catch (e) {}
+
+async function loadOwned() {
+  try {
+    if (store) {
+      const r = await store.get(KEY);
+      if (r && r.value) owned = new Set(JSON.parse(r.value));
+    } else if (ls) {
+      const raw = ls.getItem(KEY);
+      if (raw) owned = new Set(JSON.parse(raw));
+    }
+  } catch (e) { /* nothing saved yet, or storage is blocked here */ }
+  if (!owned.size) owned = new Set(SEED);   // first visit: start from the saved binder
+  $("persistNote").textContent = (store || ls)
+    ? "Saved in this browser as you go. Use the file for backups and other devices."
+    : "Storage is blocked here, so picks last for this session only \u2014 save to a file to keep them.";
+}
+
+let saveTimer = null;
+function persist() {
+  if (!store && !ls) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    const payload = JSON.stringify([...owned]);
+    try {
+      if (store) await store.set(KEY, payload); else ls.setItem(KEY, payload);
+    } catch (e) {
+      $("persistNote").textContent = "Couldn't save \u2014 use \u201cSave my binder to a file\u201d instead.";
+    }
+  }, 400);
+}
+
+/* ---- the current run of cards ---- */
+const CAT_ORDER = ["BASE","INSERT","AUTOGRAPH","AUTOGRAPH RELIC","RELIC"];
+const byNum = (a, z) =>
+  ((a.n === null) - (z.n === null)) ||
+  ((a.n !== null && z.n !== null) ? a.n - z.n : String(a.num).localeCompare(String(z.num)));
+const byCat = (a, z) =>
+  CAT_ORDER.indexOf(a.cat) - CAT_ORDER.indexOf(z.cat) || a.sub.localeCompare(z.sub);
+
+let cache = null, cacheKey = "";
+function currentSlots() {
+  const key = [S.binder, S.sort, S.sp, S.rc, S.need, S.need ? owned.size : 0].join("~");
+  if (cache && key === cacheKey) return cache;
+  const b = BINDERS.find(x => x.id === S.binder);
+  let list = SLOTS.filter(b.pick);
+  if (S.sp)   list = list.filter(s => s.sp);
+  if (S.rc)   list = list.filter(s => s.rc);
+  if (S.need) list = list.filter(s => !owned.has(s.id));
+  if (S.sort === "team")
+    list.sort((a, z) => teamOf(a).localeCompare(teamOf(z)) || byNum(a, z) || byCat(a, z));
+  else if (S.sort === "player")
+    list.sort((a, z) => label(a).localeCompare(label(z)) || byNum(a, z));
+  else if (S.sort === "subset")
+    list.sort((a, z) => byCat(a, z) || byNum(a, z));
+  else
+    list.sort((a, z) => byNum(a, z) || byCat(a, z));
+  cache = list; cacheKey = key;
+  return list;
+}
+
+/* ---- rendering ---- */
+let arcSeq = 0;
+function arcSvg(text, color) {
+  const t = (text || "").toUpperCase();
+  // fit the name to the ~88-unit arc: narrower type as the name gets longer
+  const size = Math.max(7.5, Math.min(16, (88 / Math.max(t.length, 1) - 0.3) / 0.56));
+  const track = size > 13 ? 0.4 : 0;
+  const id = "arc" + (++arcSeq);
+  return `<svg class="arc" viewBox="0 0 100 30" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <path id="${id}" d="M 8,27 Q 50,-2 92,27" fill="none"></path>
+    <text style="font-family:'Big Shoulders Display','Arial Narrow',sans-serif;font-weight:800"
+      font-size="${size}" fill="${color}" letter-spacing="${track}"><textPath href="#${id}"
+      startOffset="50%" text-anchor="middle">${t}</textPath></text>
+  </svg>`;
+}
+
+const nick = t => t.split(/\s+/).slice(-1)[0];
+const subsetShort = t => t.replace(/ CHROME VARIATION$/, "").replace(/ VARIATIONS?$/, "");
+const arcLabel = s => s.teams.length > 1 ? subsetShort(s.sub) : teamOf(s);
+const frameTint = s => s.teams.length > 1 ? "#2E2A26" : teamColor(teamOf(s));
+
+function frameInner(s) {
+  if (s.players.length > 1)
+    return `<u>${s.players.map(pl => `<em>${esc(nick(pl))}</em>`).join("")}</u>`;
+  return `<span>${initials(s)}</span>`;
+}
+function bandName(s) {
+  return s.players.length > 1 ? s.teams.map(nick).join(" / ") : (s.players[0] || s.teams[0]);
+}
+function bandUnder(s) {
+  return s.players.length > 1 ? s.players.length + " players" : teamOf(s);
+}
+
+function initials(s) {
+  if (s.players.length > 1) return s.players.length + "×";
+  const p = s.players[0] || s.teams[0] || "";
+  return p.split(/\s+/).slice(0, 2).map(w => w[0] || "").join("").toUpperCase();
+}
+
+function pocketHtml(slot, idx) {
+  if (!slot) return `<div class="pocket void" aria-hidden="true"></div>`;
+  const has = owned.has(slot.id);
+  const c = frameTint(slot);
+  const flags = `<span class="flags">${slot.sp ? '<span class="flag">SP</span>' : ""}${
+    slot.rc ? '<span class="flag rc">RC</span>' : ""}</span>`;
+  const inner = has
+    ? `<div class="card" style="--tc:${c}">
+         ${arcSvg(arcLabel(slot), c)}
+         <div class="frame">${frameInner(slot)}</div>
+         <div class="band">
+           <span class="ball">${slot.num}</span>
+           <span class="who"><b>${esc(bandName(slot))}</b><i>${esc(bandUnder(slot))}</i></span>
+         </div>
+       </div>`
+    : `<div class="ghost">
+         <span class="no">${slot.num}</span>
+         <span class="nm">${esc(shortName(slot))}</span>
+         <span class="tm">${esc(teamOf(slot))}</span>
+       </div>`;
+  return `<button class="pocket" data-i="${idx}" aria-pressed="${has}"
+    aria-label="${esc(slot.num + " " + label(slot))}${has ? ", in binder" : ", not yet"}">${inner}${flags}</button>`;
+}
+
+const shortName = s => s.players.length > 1
+  ? s.players.map(p => p.split(/\s+/).slice(-1)[0]).join(" / ")
+  : (s.players[0] || s.teams[0] || "");
+const esc = t => String(t).replace(/[&<>"]/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[m]));
+
+function pageHtml(list, page, per, side) {
+  const start = page * per;
+  if (start >= list.length && page > 0)
+    return `<div class="page ${side} blank"></div>`;
+  let cells = "";
+  for (let i = 0; i < per; i++) cells += pocketHtml(list[start + i], start + i);
+  return `<div class="page ${side}">
+    <div class="grid" style="grid-template-columns:repeat(${S.cols},1fr)">${cells}</div>
+    <span class="page-no">Page ${page + 1}</span>
+  </div>`;
+}
+
+let frontMeta = { name:"", have:0, total:0 };
+
+function frontHtml(side) {
+  return `<div class="page ${side} front">
+    <div class="plate">
+      <span class="pl-set">2026 Topps Heritage</span>
+      <b class="pl-name">${esc(frontMeta.name)}</b>
+      <span class="pl-rule"></span>
+      <span class="pl-sub">${frontMeta.have} of ${frontMeta.total} cards</span>
+    </div>
+  </div>`;
+}
+
+// leaf 0 is the front page; leaf n holds pocket page n
+function leafHtml(list, leaf, per, side) {
+  return leaf === 0 ? frontHtml(side) : pageHtml(list, leaf - 1, per, side);
+}
+
+function render() {
+  const list = currentSlots();
+  const per = S.cols * S.rows;
+  const pages = Math.max(1, Math.ceil(list.length / per));
+  const leaves = pages + 1;
+  const two = twoUp();
+  S.leaf = Math.max(0, Math.min(S.leaf, leaves - 1));
+  const l = two ? S.leaf - (S.leaf % 2) : S.leaf;
+  const r = l + 1;
+
+  frontMeta = { name: BINDERS.find(b => b.id === S.binder).name,
+                have: list.filter(s => owned.has(s.id)).length, total: list.length };
+
+  $("binder").innerHTML = two
+    ? leafHtml(list, l, per, "left") +
+      `<div class="rings">${'<span class="ring"></span>'.repeat(S.rows === 2 ? 2 : 3)}</div>` +
+      leafHtml(list, r, per, "right")
+    : leafHtml(list, l, per, "left");
+
+  const have = list.filter(s => owned.has(s.id)).length;
+  $("tHave").textContent = have;
+  $("tNeed").textContent = list.length - have;
+  $("tPages").textContent = pages;
+  $("meterBar").style.width = (list.length ? (have / list.length) * 100 : 0) + "%";
+  $("meterTxt").textContent = have + " of " + list.length + " cards";
+  updatePrintNote();
+
+  const shown = (two ? [l, r] : [l]).filter(x => x >= 1 && x <= pages);
+  $("whereMain").textContent = !shown.length ? "Front of binder"
+    : shown.length === 2 ? `Pages ${shown[0]}–${shown[1]}` : `Page ${shown[0]}`;
+  $("whereSub").textContent = frontMeta.name;
+  $("first").disabled = $("prev").disabled = l === 0;
+  $("last").disabled = $("next").disabled = (two ? r : l) >= leaves - 1;
+
+  if (!list.length)
+    $("binder").innerHTML =
+      `<div class="page" style="text-align:center;padding:44px 20px;color:#6f665c">
+         <b style="font-family:var(--disp);font-size:22px;display:block;color:#1A1714">Nothing to show</b>
+         Loosen a filter on the left and the pages come back.</div>`;
+}
+
+function showCard(slot) {
+  const has = owned.has(slot.id);
+  $("readout").innerHTML =
+    `<span class="k">${esc(slot.num)}</span>
+     <span class="v"><b>${esc(label(slot))}</b> &middot; ${esc(teamOf(slot))}</span>
+     <span class="v">${esc(slot.sub)}${slot.sp ? " · short print" : ""}${slot.rc ? " · rookie" : ""}${
+       slot.note ? " · " + esc(slot.note) : ""}</span>
+     <span class="hint">${has ? "In the binder" : "Still needed"}</span>`;
+}
+
+/* ---- interaction ---- */
+$("binder").addEventListener("click", e => {
+  const p = e.target.closest(".pocket");
+  if (!p || p.classList.contains("void")) return;
+  const list = currentSlots();
+  const slot = list[+p.dataset.i];
+  if (!slot) return;
+  owned.has(slot.id) ? owned.delete(slot.id) : owned.add(slot.id);
+  if (S.need) cache = null;
+  persist(); render(); showCard(slot);
+});
+$("binder").addEventListener("mouseover", e => {
+  const p = e.target.closest(".pocket");
+  if (!p || p.classList.contains("void")) return;
+  const slot = currentSlots()[+p.dataset.i];
+  if (slot) showCard(slot);
+});
+
+const pageCount = () => Math.max(1, Math.ceil(currentSlots().length / (S.cols * S.rows)));
+const leafCount = () => pageCount() + 1;
+const step = () => twoUp() ? 2 : 1;
+const go = n => {
+  S.leaf = Math.max(0, Math.min(n, leafCount() - 1));
+  render();
+  document.querySelector(".stage").scrollIntoView({ behavior:"smooth", block:"start" });
+};
+$("prev").onclick  = () => go(S.leaf - step());
+$("next").onclick  = () => go(S.leaf + step());
+$("first").onclick = () => go(0);
+$("last").onclick  = () => go(leafCount() - 1);
+document.addEventListener("keydown", e => {
+  if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if (e.key === "ArrowLeft")  { e.preventDefault(); go(S.leaf - step()); }
+  if (e.key === "ArrowRight") { e.preventDefault(); go(S.leaf + step()); }
+});
+window.addEventListener("resize", () => render());
+
+$("btnNext").onclick = () => {
+  const list = currentSlots(), per = S.cols * S.rows;
+  const i = list.findIndex(s => !owned.has(s.id));
+  if (i < 0) { $("readout").innerHTML =
+    `<span class="v"><b>This binder is full.</b> Every card in it is accounted for.</span>`; return; }
+  go(Math.floor(i / per) + 1);
+  showCard(list[i]);
+};
+
+/* controls */
+const binderSel = $("binderSel");
+BINDERS.forEach(b => binderSel.add(new Option(b.name, b.id)));
+binderSel.onchange = () => { S.binder = binderSel.value; S.leaf = startLeaf(); render(); };
+$("sortSel").onchange = e => { S.sort = e.target.value; S.leaf = startLeaf(); render(); };
+$("layoutSeg").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  [...e.currentTarget.children].forEach(x => x.setAttribute("aria-pressed", x === b));
+  S.cols = +b.dataset.c; S.rows = +b.dataset.r; S.leaf = startLeaf(); render();
+};
+["fSP","fRC","fNeed"].forEach(id => $(id).onchange = e => {
+  S[id.slice(1).toLowerCase()] = e.target.checked; S.leaf = startLeaf(); render();
+});
+
+/* search */
+$("q").addEventListener("input", e => {
+  const q = e.target.value.trim().toLowerCase();
+  const box = $("results");
+  if (q.length < 2) { box.innerHTML = ""; return; }
+  const list = currentSlots();
+  const hits = list.map((s, i) => ({ s, i }))
+    .filter(({ s }) => String(s.num).toLowerCase() === q ||
+      label(s).toLowerCase().includes(q) || teamOf(s).toLowerCase().includes(q))
+    .slice(0, 25);
+  box.innerHTML = hits.length
+    ? hits.map(({ s, i }) =>
+        `<button data-i="${i}"><span class="rn">${esc(s.num)}</span>${esc(label(s))}
+         <span class="rs">${esc(s.sub)}</span></button>`).join("")
+    : `<p class="fine">No card by that name or number in this binder.</p>`;
+});
+$("results").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const per = S.cols * S.rows, i = +b.dataset.i;
+  go(Math.floor(i / per) + 1);
+  showCard(currentSlots()[i]);
+};
+
+
+/* ---- print: renders the whole current view, not just the open spread ---- */
+let printMode = "pages";
+
+function filterWords() {
+  const on = [];
+  if (S.sp) on.push("short prints");
+  if (S.rc) on.push("rookies");
+  if (S.need) on.push("cards still needed");
+  return on.length ? on.join(", ") : "every card";
+}
+
+function printFlags(s) {
+  return (s.sp ? '<span class="pf">SP</span>' : "") + (s.rc ? '<span class="pf">RC</span>' : "");
+}
+
+function sheetGrid(cols, rows) {
+  // fit the pocket grid to a portrait sheet: ~247mm of usable height after margins
+  const cardH = Math.min(84, (247 - 16) / rows - 4);
+  const cardW = cardH * 5 / 7;
+  return { cardH, cardW,
+    style: `grid-template-columns:repeat(${cols},${cardW.toFixed(1)}mm);` +
+           `grid-auto-rows:${cardH.toFixed(1)}mm;gap:4mm` };
+}
+
+function buildPrintout() {
+  const list = currentSlots();
+  const bn = BINDERS.find(b => b.id === S.binder).name;
+  const when = new Date().toLocaleDateString(undefined, { year:"numeric", month:"long", day:"numeric" });
+  const filtered = S.sp || S.rc || S.need;
+  const stamp = `2026 Topps Heritage · ${bn} · ${filterWords()} · ${list.length} cards · ${when}`;
+  const foot = `<p class="p-foot">${esc(stamp)} — checklist subject to change.</p>`;
+  const out = $("printout");
+
+  if (!list.length) {
+    out.innerHTML = `<div class="sheet"><div class="sheet-hd"><b>Nothing to print</b></div>
+      <p>No cards match the filters on screen.</p></div>`;
+    return 0;
+  }
+
+  if (printMode === "list") {
+    const rows = list.map(s => `<div class="p-row"><span class="box"></span>
+      <span class="pn">${esc(s.num)}</span>
+      <span class="pp">${esc(label(s))}</span>${printFlags(s)}
+      <span class="pt">${esc(teamOf(s))}</span></div>`).join("");
+    out.innerHTML = `<div class="sheet"><div class="sheet-hd">
+        <b>${esc(bn)}</b><span>${list.length} cards · ${esc(filterWords())}</span></div>
+      <div class="p-list">${rows}</div>${foot}</div>`;
+    return Math.ceil(list.length / 100);
+  }
+
+  const per = S.cols * S.rows;
+  const pages = Math.ceil(list.length / per);
+  const g = sheetGrid(S.cols, S.rows);
+  let html = "";
+  for (let pg = 0; pg < pages; pg++) {
+    let cells = "";
+    for (let i = 0; i < per; i++) {
+      const s = list[pg * per + i];
+      if (!s) { cells += `<div class="p-pocket blank"></div>`; continue; }
+      const got = owned.has(s.id);
+      cells += `<div class="p-pocket${got ? " got" : ""}">
+        <span class="pn">${esc(s.num)}</span>
+        <span class="pp">${esc(shortName(s))}</span>
+        <span class="pt">${esc(teamOf(s))}</span>
+        ${printFlags(s)}
+        ${got ? "" : '<span class="box"></span>'}
+      </div>`;
+    }
+    html += `<div class="sheet">
+      <div class="sheet-hd"><b>${esc(bn)}</b>
+        <span>${filtered ? "Sheet" : "Binder page"} ${pg + 1} of ${pages} · ${S.cols}×${S.rows} pocket${
+          filtered ? " · " + esc(filterWords()) : ""}</span></div>
+      <div class="p-grid" style="${g.style}">${cells}</div>
+      ${pg === pages - 1 ? foot : ""}</div>`;
+  }
+  out.innerHTML = html;
+  return pages;
+}
+
+function updatePrintNote() {
+  const list = currentSlots();
+  const n = printMode === "list"
+    ? Math.max(1, Math.ceil(list.length / 100))
+    : Math.max(1, Math.ceil(list.length / (S.cols * S.rows)));
+  $("printNote").textContent = list.length
+    ? `${n} sheet${n === 1 ? "" : "s"} — ${list.length} cards at the current filters.`
+    : "Nothing matches the filters, so there's nothing to print.";
+}
+
+$("printSeg").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  [...e.currentTarget.children].forEach(x => x.setAttribute("aria-pressed", x === b));
+  printMode = b.dataset.m;
+  updatePrintNote();
+};
+$("btnPrint").onclick = () => { buildPrintout(); window.print(); };
+window.addEventListener("beforeprint", buildPrintout);
+
+/* file save / load */
+$("btnSave").onclick = () => {
+  const blob = new Blob([JSON.stringify({ set:"2026 Topps Heritage", saved:new Date().toISOString(),
+    owned:[...owned] }, null, 2)], { type:"application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "heritage-binder.json";
+  a.click(); URL.revokeObjectURL(a.href);
+};
+$("btnLoad").onclick = () => $("file").click();
+$("file").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const fr = new FileReader();
+  fr.onload = () => {
+    try {
+      const d = JSON.parse(fr.result);
+      owned = new Set(d.owned || []);
+      cache = null; persist(); render();
+      $("readout").innerHTML = `<span class="v"><b>Loaded.</b> ${owned.size} cards restored.</span>`;
+    } catch (err) {
+      $("readout").innerHTML =
+        `<span class="v"><b>That file didn't read.</b> Pick a heritage-binder.json saved from this page.</span>`;
+    }
+  };
+  fr.readAsText(f); e.target.value = "";
+};
+
+S.leaf = startLeaf();
+loadOwned().then(render);
+</script>
+
+</html>
