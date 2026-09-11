@@ -383,7 +383,7 @@
     <div class="stat"><b id="tNeed">0</b><span>Still needed</span></div>
     <div class="stat"><b id="tPages">0</b><span>Pages</span></div>
     <!-- >>> binderz-values-stat ui >>> --><div class="stat"><b class="val" id="tValue">$0</b><span>Value</span></div><!-- <<< binderz-values-stat ui <<< -->
-  </div>
+      </div>
 </div>
 
 <div id="printout"></div>
@@ -400,7 +400,7 @@
   </div>
 </div>
 <!-- <<< binderz-values-edit ui <<< -->
-
+    
 <div class="wrap">
   <aside class="rail">
     <div class="fieldset">
@@ -512,7 +512,7 @@
       </div>
     </div>
 <!-- <<< binderz-sync ui <<< -->
-                  </aside>
+                      </aside>
 
   <main class="stage">
     <div class="nav">
@@ -1037,6 +1037,7 @@ S.leaf = startLeaf();
 
 
 
+
 /* >>> binderz js >>> */
 /* ============================================================
    Binderz — card values
@@ -1058,17 +1059,26 @@ const VALUES = (function () {
 
   const VKEY = KEY.replace("-owned-", "-values-");
 
-  /* Order matters: the three specific BASE tests run before the BASE
-     catch-all, which is what makes "variation" mean "any other base card". */
+  /* Buckets are decided by what the subset is CALLED, not by which
+     category the checklist happened to file it under. Topps is not
+     consistent about that: Series 1 and 2 put their parallels in BASE,
+     while Heritage puts the very same kind of card in INSERT. Reading
+     the name is what makes one rule work for every set.
+
+     Order matters — the specific tests run before the catch-alls. */
+
+  const PARALLEL = /VARIATION|CHROME|PARALLEL|GOLDEN MIRROR/;
+  const flat = s => s.cat === "BASE" || s.cat === "INSERT";
+
   const BUCKETS = [
-    { id: "base", name: "Base card",
-      test: s => s.cat === "BASE" && s.sub === "BASE SET" && !s.rc, def: 0.25 },
-    { id: "rc", name: "Base rookie",
-      test: s => s.cat === "BASE" && s.sub === "BASE SET" && s.rc, def: 2 },
     { id: "sp", name: "Short print rookie",
-      test: s => s.cat === "BASE" && /SHORT PRINT/.test(s.sub), def: 15 },
-    { id: "var", name: "Base variation",
-      test: s => s.cat === "BASE", def: 3 },
+      test: s => flat(s) && /SHORT PRINT/.test(s.sub), def: 15 },
+    { id: "var", name: "Variation / parallel",
+      test: s => flat(s) && PARALLEL.test(s.sub), def: 3 },
+    { id: "rc", name: "Base rookie",
+      test: s => s.cat === "BASE" && s.rc, def: 2 },
+    { id: "base", name: "Base card",
+      test: s => s.cat === "BASE", def: 0.25 },
     { id: "ins", name: "Insert",
       test: s => s.cat === "INSERT", def: 1.5 },
     { id: "auto", name: "Autograph",
@@ -1076,7 +1086,7 @@ const VALUES = (function () {
     { id: "autorelic", name: "Autograph relic",
       test: s => s.cat === "AUTOGRAPH RELIC", def: 45 },
     { id: "relic", name: "Relic",
-      test: s => s.cat === "RELIC", def: 10 },
+      test: () => true, def: 10 },
   ];
 
   const DEFAULTS = BUCKETS.reduce((o, b) => (o[b.id] = b.def, o), {});
